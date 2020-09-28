@@ -11,4 +11,9 @@ class Cloudpayments {
     final String version = await _channel.invokeMethod('getPlatformVersion');
     return version;
   }
+
+  static Future<bool> isCardNumberValid(String cardNumber) async {
+    final bool valid = await _channel.invokeMethod<bool>('isCardNumberValid', {'cardNumber': cardNumber});
+    return valid;
+  }
 }

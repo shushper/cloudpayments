@@ -8,6 +8,7 @@ import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 import io.flutter.plugin.common.PluginRegistry.Registrar
+import ru.cloudpayments.sdk.cp_card.CPCard
 
 /** CloudpaymentsPlugin */
 public class CloudpaymentsPlugin: FlutterPlugin, MethodCallHandler {
@@ -18,7 +19,7 @@ public class CloudpaymentsPlugin: FlutterPlugin, MethodCallHandler {
   private lateinit var channel : MethodChannel
 
   override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
-    channel = MethodChannel(flutterPluginBinding.getFlutterEngine().getDartExecutor(), "cloudpayments")
+    channel = MethodChannel(flutterPluginBinding.binaryMessenger, "cloudpayments")
     channel.setMethodCallHandler(this);
   }
 
@@ -40,14 +41,27 @@ public class CloudpaymentsPlugin: FlutterPlugin, MethodCallHandler {
   }
 
   override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: Result) {
-    if (call.method == "getPlatformVersion") {
-      result.success("Android ${android.os.Build.VERSION.RELEASE}")
-    } else {
-      result.notImplemented()
+    when (call.method) {
+        "getPlatformVersion" -> {
+          result.success("Android ${android.os.Build.VERSION.RELEASE}")
+        }
+        "isCardNumberValid" -> {
+          val valid = isCardNumberValid(call)
+          result.success(valid)
+        }
+        else -> {
+          result.notImplemented()
+        }
     }
   }
 
   override fun onDetachedFromEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
     channel.setMethodCallHandler(null)
+  }
+
+  private fun isCardNumberValid(call: MethodCall): Boolean {
+    val params = call.arguments as Map<String, Any>
+    val cardNumber = params["cardNumber"] as String
+    return CPCard.isValidNumber(cardNumber)
   }
 }
