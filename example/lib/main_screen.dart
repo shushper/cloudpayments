@@ -1,3 +1,4 @@
+import 'package:cloudpayments_example/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 
@@ -64,21 +65,4 @@ class MainScreen extends StatelessWidget {
   }
 }
 
-class CustomButton extends StatelessWidget {
-  final Widget child;
-  final Color backgroundColor;
-  final Function onPressed;
 
-  CustomButton({this.child, this.backgroundColor, this.onPressed});
-
-  @override
-  Widget build(BuildContext context) {
-    return ElevatedButton(
-      style: ButtonStyle(
-          backgroundColor: MaterialStateProperty.resolveWith((states) => backgroundColor),
-          minimumSize: MaterialStateProperty.resolveWith((states) => Size(double.infinity, 48.0))),
-      onPressed: onPressed,
-      child: child,
-    );
-  }
-}
