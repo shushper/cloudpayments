@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cloudpayments_example/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
@@ -41,28 +43,41 @@ class MainScreen extends StatelessWidget {
             SizedBox(
               height: 8,
             ),
-            CustomButton(
-              backgroundColor: Colors.black,
-              onPressed: () {},
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'Pay with',
-                    textAlign: TextAlign.center,
-                  ),
-                  SvgPicture.asset(
-                    'assets/images/google_pay.svg',
-                    height: 30,
-                  ),
-                ],
+            if (Platform.isAndroid)
+              CustomButton(
+                backgroundColor: Colors.black,
+                onPressed: () {},
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Pay with',
+                      textAlign: TextAlign.center,
+                    ),
+                    SvgPicture.asset(
+                      'assets/images/google_pay.svg',
+                      height: 30,
+                    ),
+                  ],
+                ),
               ),
-            )
+            if (Platform.isIOS)
+              CustomButton(
+                backgroundColor: Colors.black,
+                onPressed: () {},
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Pay with Apple',
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
           ],
         ),
       ),
     );
   }
 }
-
-
