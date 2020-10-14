@@ -69,7 +69,7 @@ class _CardScreenState extends State<CardScreen> {
       final cardNumber = cardNumberMaskFormatter.getUnmaskedText();
       final isValidCardNumber = await Cloudpayments.isValidNumber(cardNumber);
 
-      final expireDate = expireDateFormatter.getUnmaskedText();
+      final expireDate = expireDateFormatter.getMaskedText();
       final isValidExpireDate = await Cloudpayments.isValidExpireDate(expireDate);
 
       final cvcCode = cvcDateFormatter.getUnmaskedText();
@@ -211,8 +211,8 @@ class CryptogramResult extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (cryptogram.cryptogram != null) ..._cryptogramWidgets(),
-        if (cryptogram.error != null) ..._errorWidgets(),
+        if (cryptogram.cryptogram != null && cryptogram.cryptogram.isNotEmpty) ..._cryptogramWidgets(),
+        if (cryptogram.error != null && cryptogram.error.isNotEmpty) ..._errorWidgets(),
       ],
     );
   }

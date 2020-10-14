@@ -78,8 +78,8 @@ public class CloudpaymentsPlugin : FlutterPlugin, MethodCallHandler {
 
     private fun isValidExpireDate(call: MethodCall): Boolean {
         val params = call.arguments as Map<String, Any>
-        val cardNumber = params["expireDate"] as String
-        return CPCard.isValidExpDate(cardNumber)
+        val expireDate = params["expireDate"] as String
+        return CPCard.isValidExpDate(expireDate)
     }
 
     private fun cardCryptogram(call: MethodCall): Map<String, Any?> {
