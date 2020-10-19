@@ -1,11 +1,7 @@
 import 'dart:io';
 
-import 'package:cloudpayments_example/custom_button.dart';
+import 'package:cloudpayments_example/common/custom_button.dart';
 import 'package:flutter/material.dart';
-import 'dart:async';
-
-import 'package:flutter/services.dart';
-import 'package:cloudpayments/cloudpayments.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class MainScreen extends StatelessWidget {

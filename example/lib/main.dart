@@ -1,5 +1,6 @@
-import 'package:cloudpayments_example/card_screen.dart';
-import 'package:cloudpayments_example/main_screen.dart';
+
+import 'package:cloudpayments_example/screens/card_screen.dart';
+import 'package:cloudpayments_example/screens/main_screen.dart';
 import 'package:flutter/material.dart';
 
 

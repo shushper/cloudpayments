@@ -1,7 +1,7 @@
 import 'package:cloudpayments/cloudpayments.dart';
-import 'package:cloudpayments/cryptogram.dart';
+import 'package:cloudpayments_example/common/custom_button.dart';
 import 'package:cloudpayments_example/constants.dart';
-import 'package:cloudpayments_example/custom_button.dart';
+import 'package:cloudpayments_example/network/api.dart';
 import 'package:flutter/material.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
@@ -16,13 +16,15 @@ class _CardScreenState extends State<CardScreen> {
   final cardNumberMaskFormatter = MaskTextInputFormatter(mask: '#### #### #### ####');
   final expireDateFormatter = MaskTextInputFormatter(mask: '##/##');
   final cvcDateFormatter = MaskTextInputFormatter(mask: '###');
+  final api = Api();
+  final _scaffoldKey = new GlobalKey<ScaffoldState>();
+
 
   bool _isInvalidAsyncCardHolder = false;
   bool _isInvalidAsyncCardNumber = false;
   bool _isInvalidAsyncExpireDate = false;
   bool _isInvalidAsyncCvcCode = false;
 
-  Cryptogram cryptogram;
 
   String _validateCardHolder(String cardHolder) {
     if (_isInvalidAsyncCardHolder) {
@@ -56,8 +58,10 @@ class _CardScreenState extends State<CardScreen> {
     return null;
   }
 
-  void _generateCryptogram() async {
-    print('_generateCryptogram');
+
+
+  void _onPayClick() async {
+    print('_onPayClick');
     if (_formKey.currentState.validate()) {
       _formKey.currentState.save();
 
@@ -101,17 +105,28 @@ class _CardScreenState extends State<CardScreen> {
 
         print('Cryptogram = ${cryptogram.cryptogram}, Error = ${cryptogram.error}');
 
-        setState(() {
-          this.cryptogram = cryptogram;
-        });
+        if (cryptogram.cryptogram != null) {
+          _auth(cryptogram.cryptogram, cardHolder, 1);
+        }
       }
     }
   }
+
+  void _auth(String cryptogram, String cardHolder, int amount) async {
+    final transaction = await api.auth(cryptogram, cardHolder, amount);
+    if (transaction.paReq != null && transaction.ascUrl != null) {
+
+    } else {
+      _scaffoldKey.currentState.showSnackBar(SnackBar(content: Text(transaction.cardHolderMessage)));
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
     _formKey.currentState?.validate();
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
         title: const Text('Pay with card'),
       ),
@@ -188,64 +203,14 @@ class _CardScreenState extends State<CardScreen> {
                   height: 16,
                 ),
                 CustomButton(
-                  child: Text('GENERATE CRYPTOGRAM'),
-                  onPressed: _generateCryptogram,
+                  child: Text('Pay 1 RUB'),
+                  onPressed: _onPayClick,
                 ),
-                if (cryptogram != null) CryptogramResult(cryptogram),
               ],
             ),
           ),
         ),
       ),
     );
-  }
-}
-
-class CryptogramResult extends StatelessWidget {
-  final Cryptogram cryptogram;
-
-  CryptogramResult(this.cryptogram);
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (cryptogram.cryptogram != null && cryptogram.cryptogram.isNotEmpty) ..._cryptogramWidgets(),
-        if (cryptogram.error != null && cryptogram.error.isNotEmpty) ..._errorWidgets(),
-      ],
-    );
-  }
-
-  List<Widget> _cryptogramWidgets() {
-    return [
-      SizedBox(
-        height: 16,
-      ),
-      Text(
-        'Cryptogram successfully generated',
-        style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
-      ),
-      SizedBox(
-        height: 8,
-      ),
-      Text('${cryptogram.cryptogram}'),
-    ];
-  }
-
-  List<Widget> _errorWidgets() {
-    return [
-      SizedBox(
-        height: 16,
-      ),
-      Text(
-        'Error while generating cryptogram',
-        style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
-      ),
-      SizedBox(
-        height: 8,
-      ),
-      Text('${cryptogram.error}'),
-    ];
   }
 }
