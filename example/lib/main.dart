@@ -1,8 +1,10 @@
 import 'dart:io';
 
 import 'package:cloudpayments/cloudpayments.dart';
+import 'package:cloudpayments_example/network/api_error.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:loading_overlay/loading_overlay.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
 import 'common/custom_button.dart';
@@ -55,6 +57,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   bool _isInvalidAsyncCardNumber = false;
   bool _isInvalidAsyncExpireDate = false;
   bool _isInvalidAsyncCvcCode = false;
+  bool _isLoading = false;
 
   String _validateCardHolder(String cardHolder) {
     if (_isInvalidAsyncCardHolder) {
@@ -141,11 +144,27 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   }
 
   void _auth(String cryptogram, String cardHolder, int amount) async {
-    final transaction = await api.auth(cryptogram, cardHolder, amount);
-    if (transaction.paReq != null && transaction.ascUrl != null) {
-    } else {
-      _scaffoldKey.currentState
-          .showSnackBar(SnackBar(content: Text(transaction.cardHolderMessage)));
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final transaction = await api.auth(cryptogram, cardHolder, amount);
+      setState(() {
+        _isLoading = false;
+      });
+      if (transaction.paReq != null && transaction.ascUrl != null) {
+      } else {
+        _scaffoldKey.currentState
+            .showSnackBar(SnackBar(content: Text(transaction.cardHolderMessage)));
+      }
+    } on ApiError catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+      _scaffoldKey.currentState.showSnackBar(SnackBar(content: Text(e.message)));
+    } catch (e) {
+      print(e);
     }
   }
 
@@ -157,142 +176,145 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       appBar: AppBar(
         title: const Text('Checkout'),
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Total to be paid: 2 RUB.',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                TextFormField(
-                  controller: cardHolderController,
-                  keyboardType: TextInputType.name,
-                  textCapitalization: TextCapitalization.words,
-                  textInputAction: TextInputAction.next,
-                  validator: _validateCardHolder,
-                  decoration: InputDecoration(
-                    labelText: 'Card holder',
-                    labelStyle: TextStyle(color: Colors.grey),
-                    border: UnderlineInputBorder(),
+      body: LoadingOverlay(
+        isLoading: _isLoading,
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Total to be paid: 2 RUB.',
+                    style: TextStyle(fontWeight: FontWeight.bold),
                   ),
-                ),
-                SizedBox(
-                  height: 16,
-                ),
-                TextFormField(
-                  keyboardType: TextInputType.number,
-                  inputFormatters: [cardNumberMaskFormatter],
-                  textInputAction: TextInputAction.next,
-                  decoration: InputDecoration(
-                    labelText: 'Card number',
-                    labelStyle: TextStyle(color: Colors.grey),
-                    border: UnderlineInputBorder(),
+                  TextFormField(
+                    controller: cardHolderController,
+                    keyboardType: TextInputType.name,
+                    textCapitalization: TextCapitalization.words,
+                    textInputAction: TextInputAction.next,
+                    validator: _validateCardHolder,
+                    decoration: InputDecoration(
+                      labelText: 'Card holder',
+                      labelStyle: TextStyle(color: Colors.grey),
+                      border: UnderlineInputBorder(),
+                    ),
                   ),
-                  validator: _validateCardNumber,
-                ),
-                SizedBox(
-                  height: 16,
-                ),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: TextFormField(
-                        textInputAction: TextInputAction.next,
-                        inputFormatters: [expireDateFormatter],
-                        keyboardType: TextInputType.number,
-                        decoration: InputDecoration(
-                          labelText: 'Expire Date',
-                          labelStyle: TextStyle(color: Colors.grey),
-                          border: UnderlineInputBorder(),
-                        ),
-                        validator: _validateExpireDate,
-                      ),
+                  SizedBox(
+                    height: 16,
+                  ),
+                  TextFormField(
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [cardNumberMaskFormatter],
+                    textInputAction: TextInputAction.next,
+                    decoration: InputDecoration(
+                      labelText: 'Card number',
+                      labelStyle: TextStyle(color: Colors.grey),
+                      border: UnderlineInputBorder(),
                     ),
-                    SizedBox(
-                      width: 16,
-                    ),
-                    Expanded(
-                      child: TextFormField(
-                          textInputAction: TextInputAction.done,
-                          inputFormatters: [cvcDateFormatter],
+                    validator: _validateCardNumber,
+                  ),
+                  SizedBox(
+                    height: 16,
+                  ),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: TextFormField(
+                          textInputAction: TextInputAction.next,
+                          inputFormatters: [expireDateFormatter],
                           keyboardType: TextInputType.number,
                           decoration: InputDecoration(
-                            labelText: 'CVC',
+                            labelText: 'Expire Date',
                             labelStyle: TextStyle(color: Colors.grey),
                             border: UnderlineInputBorder(),
                           ),
-                          validator: _validateCvv),
-                    ),
-                  ],
-                ),
-                SizedBox(
-                  height: 16,
-                ),
-                CustomButton(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        'Pay with card',
-                        textAlign: TextAlign.center,
+                          validator: _validateExpireDate,
+                        ),
                       ),
                       SizedBox(
                         width: 16,
                       ),
-                      Icon(Icons.credit_card),
+                      Expanded(
+                        child: TextFormField(
+                            textInputAction: TextInputAction.done,
+                            inputFormatters: [cvcDateFormatter],
+                            keyboardType: TextInputType.number,
+                            decoration: InputDecoration(
+                              labelText: 'CVC',
+                              labelStyle: TextStyle(color: Colors.grey),
+                              border: UnderlineInputBorder(),
+                            ),
+                            validator: _validateCvv),
+                      ),
                     ],
                   ),
-                  onPressed: _onPayClick,
-                ),
-                SizedBox(
-                  height: 16,
-                ),
-                Align(
-                  alignment: Alignment.center,
-                  child: Text('or'),
-                ),
-                SizedBox(
-                  height: 16,
-                ),
-                if (Platform.isAndroid)
+                  SizedBox(
+                    height: 16,
+                  ),
                   CustomButton(
-                    backgroundColor: Colors.black,
-                    onPressed: () {},
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          'Pay with',
+                          'Pay with card',
                           textAlign: TextAlign.center,
                         ),
-                        SvgPicture.asset(
-                          'assets/images/google_pay.svg',
-                          height: 30,
+                        SizedBox(
+                          width: 16,
                         ),
+                        Icon(Icons.credit_card),
                       ],
                     ),
+                    onPressed: _onPayClick,
                   ),
-                if (Platform.isIOS)
-                  CustomButton(
-                    backgroundColor: Colors.black,
-                    onPressed: () {},
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          'Pay with Apple',
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
+                  SizedBox(
+                    height: 16,
+                  ),
+                  Align(
+                    alignment: Alignment.center,
+                    child: Text('or'),
+                  ),
+                  SizedBox(
+                    height: 16,
+                  ),
+                  if (Platform.isAndroid)
+                    CustomButton(
+                      backgroundColor: Colors.black,
+                      onPressed: () {},
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Pay with',
+                            textAlign: TextAlign.center,
+                          ),
+                          SvgPicture.asset(
+                            'assets/images/google_pay.svg',
+                            height: 30,
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-              ],
+                  if (Platform.isIOS)
+                    CustomButton(
+                      backgroundColor: Colors.black,
+                      onPressed: () {},
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Pay with Apple',
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
+                    ),
+                ],
+              ),
             ),
           ),
         ),

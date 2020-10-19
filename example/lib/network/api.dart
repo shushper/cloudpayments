@@ -1,4 +1,5 @@
 import 'package:cloudpayments_example/models/transaction.dart';
+import 'package:cloudpayments_example/network/api_error.dart';
 import 'package:cloudpayments_example/network/network.dart';
 import 'package:cloudpayments_example/network/pay_request.dart';
 import 'package:cloudpayments_example/network/urls.dart';
@@ -18,9 +19,15 @@ class Api {
       jsonData: "{\"age\":27,\"name\":\"Ivan\",\"phone\":\"+79998881122\"}",
     );
 
+
     final response = await _network.post(Url.authUrl,
         headers: {'Content-Type': 'application/json'}, body: request.toJson());
 
-    return Transaction.fromJson(response.data);
+    if (response.success) {
+      return Transaction.fromJson(response.data);
+    } else {
+      throw ApiError(response.message);
+    }
+
   }
 }
