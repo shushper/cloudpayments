@@ -11,4 +11,9 @@ class Transaction {
         cardHolderMessage = json['CardHolderMessage'],
         paReq = json['PaReq'],
         ascUrl = json['AcsUrl'];
+
+  @override
+  String toString() {
+    return 'Transaction{transactionId: $transactionId, reasonCode: $reasonCode, cardHolderMessage: $cardHolderMessage, paReq: $paReq, ascUrl: $ascUrl}';
+  }
 }

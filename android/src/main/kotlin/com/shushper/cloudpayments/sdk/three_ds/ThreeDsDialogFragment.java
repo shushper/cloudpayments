@@ -2,6 +2,7 @@ package com.shushper.cloudpayments.sdk.three_ds;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -12,6 +13,7 @@ import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
 
 import com.google.gson.JsonObject;
@@ -43,6 +45,10 @@ public class ThreeDsDialogFragment extends DialogFragment {
     private ThreeDSDialogListener listener;
 
     private WebView webViewThreeDs;
+    
+    public void setListener(ThreeDSDialogListener listener) {
+        this.listener = listener;
+    }
 
     public static ThreeDsDialogFragment newInstance(String acsUrl, String md, String paReq) {
         ThreeDsDialogFragment dialogFragment = new ThreeDsDialogFragment();
@@ -167,6 +173,15 @@ public class ThreeDsDialogFragment extends DialogFragment {
             if (activity instanceof ThreeDSDialogListener) {
                 listener = (ThreeDSDialogListener) activity;
             }
+        }
+    }
+    
+
+    @Override
+    public void onCancel(@NonNull DialogInterface dialog) {
+        super.onCancel(dialog);
+        if (listener != null) {
+            listener.onCancel();
         }
     }
 }

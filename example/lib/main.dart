@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:cloudpayments/cloudpayments.dart';
+import 'package:cloudpayments_example/models/transaction.dart';
 import 'package:cloudpayments_example/network/api_error.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -58,6 +59,12 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   bool _isInvalidAsyncExpireDate = false;
   bool _isInvalidAsyncCvcCode = false;
   bool _isLoading = false;
+
+  void setLoading(bool loading) {
+    setState(() {
+      _isLoading = loading;
+    });
+  }
 
   String _validateCardHolder(String cardHolder) {
     if (_isInvalidAsyncCardHolder) {
@@ -144,27 +151,49 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   }
 
   void _auth(String cryptogram, String cardHolder, int amount) async {
-    setState(() {
-      _isLoading = true;
-    });
+    setLoading(true);
 
     try {
       final transaction = await api.auth(cryptogram, cardHolder, amount);
-      setState(() {
-        _isLoading = false;
-      });
+      setLoading(false);
       if (transaction.paReq != null && transaction.ascUrl != null) {
+        _show3ds(transaction);
       } else {
-        _scaffoldKey.currentState
-            .showSnackBar(SnackBar(content: Text(transaction.cardHolderMessage)));
+        _scaffoldKey.currentState.showSnackBar(SnackBar(content: Text(transaction.cardHolderMessage)));
       }
-    } on ApiError catch (e) {
-      setState(() {
-        _isLoading = false;
-      });
-      _scaffoldKey.currentState.showSnackBar(SnackBar(content: Text(e.message)));
     } catch (e) {
-      print(e);
+      setLoading(false);
+      _scaffoldKey.currentState.showSnackBar(SnackBar(content: Text("Error")));
+    }
+  }
+
+  void _show3ds(Transaction transaction) async {
+    print('show 3ds');
+    final result = await Cloudpayments.show3ds(transaction.ascUrl, transaction.transactionId, transaction.paReq);
+
+    if (result != null) {
+      if (result.success) {
+        _post3ds(result.md, result.paRes);
+      } else {
+        _scaffoldKey.currentState.showSnackBar(SnackBar(content: Text(result.error)));
+      }
+    }
+  }
+
+  void _post3ds(String md, String paRes) async {
+    print('_post3ds md = $md, paRes = $paRes');
+    setLoading(true);
+
+    try {
+      final transaction = await api.post3ds(md, paRes);
+      setLoading(false);
+
+      print(transaction);
+
+      _scaffoldKey.currentState.showSnackBar(SnackBar(content: Text(transaction.cardHolderMessage)));
+    } catch (e) {
+      setLoading(false);
+      _scaffoldKey.currentState.showSnackBar(SnackBar(content: Text("Error")));
     }
   }
 

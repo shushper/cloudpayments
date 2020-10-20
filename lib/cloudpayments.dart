@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:cloudpayments/cryptogram.dart';
+import 'package:cloudpayments/three_ds_response.dart';
 import 'package:flutter/services.dart';
 
 class Cloudpayments {
@@ -33,6 +34,24 @@ class Cloudpayments {
       'publicId': publicId,
     });
     return Cryptogram(arguments['cryptogram'], arguments['error']);
+  }
+
+  static Future<ThreeDsResponse> show3ds(String ascUrl, String transactionId, String paReq) async {
+    try {
+      final dynamic arguments = await _channel.invokeMethod<dynamic>('show3ds', {
+        'ascUrl': ascUrl,
+        'transactionId': transactionId,
+        'paReq': paReq,
+      });
+
+      if (arguments == null) {
+        return null;
+      } else {
+        return ThreeDsResponse(success: true, md: arguments['md'], paRes: arguments['paRes']);
+      }
+    } on PlatformException catch (e) {
+      return ThreeDsResponse(success: false, error: e.message);
+    }
   }
 
   static String _formatExpireDate(String expireDate) {

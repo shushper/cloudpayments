@@ -2,8 +2,13 @@ package com.shushper.cloudpayments
 
 import androidx.annotation.NonNull;
 import com.shushper.cloudpayments.sdk.cp_card.CPCard
+import com.shushper.cloudpayments.sdk.three_ds.ThreeDSDialogListener
+import com.shushper.cloudpayments.sdk.three_ds.ThreeDsDialogFragment
+import io.flutter.embedding.android.FlutterFragmentActivity
 
 import io.flutter.embedding.engine.plugins.FlutterPlugin
+import io.flutter.embedding.engine.plugins.activity.ActivityAware
+import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
@@ -17,16 +22,38 @@ import javax.crypto.IllegalBlockSizeException
 import javax.crypto.NoSuchPaddingException
 
 /** CloudpaymentsPlugin */
-public class CloudpaymentsPlugin : FlutterPlugin, MethodCallHandler {
+public class CloudpaymentsPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     /// The MethodChannel that will the communication between Flutter and native Android
     ///
     /// This local reference serves to register the plugin with the Flutter Engine and unregister it
     /// when the Flutter Engine is detached from the Activity
     private lateinit var channel: MethodChannel
+    private var activity: FlutterFragmentActivity? = null
+
 
     override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
         channel = MethodChannel(flutterPluginBinding.binaryMessenger, "cloudpayments")
         channel.setMethodCallHandler(this);
+    }
+
+    override fun onDetachedFromEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
+        channel.setMethodCallHandler(null)
+    }
+
+    override fun onAttachedToActivity(binding: ActivityPluginBinding) {
+        this.activity = binding.activity as FlutterFragmentActivity
+    }
+
+    override fun onDetachedFromActivity() {
+        this.activity = null
+    }
+
+    override fun onDetachedFromActivityForConfigChanges() {
+        this.activity = null
+    }
+
+    override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {
+        this.activity = binding.activity as FlutterFragmentActivity
     }
 
     // This static function is optional and equivalent to onAttachedToEngine. It supports the old
@@ -60,15 +87,15 @@ public class CloudpaymentsPlugin : FlutterPlugin, MethodCallHandler {
                 val argument = cardCryptogram(call)
                 result.success(argument)
             }
+            "show3ds" -> {
+                show3ds(call, result)
+            }
             else -> {
                 result.notImplemented()
             }
         }
     }
 
-    override fun onDetachedFromEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
-        channel.setMethodCallHandler(null)
-    }
 
     private fun isValidNumber(call: MethodCall): Boolean {
         val params = call.arguments as Map<String, Any>
@@ -119,5 +146,35 @@ public class CloudpaymentsPlugin : FlutterPlugin, MethodCallHandler {
         }
 
         return mapOf("cryptogram" to cardCryptogram, "error" to error)
+    }
+
+    private fun show3ds(call: MethodCall, result: Result) {
+        val params = call.arguments as Map<String, Any>
+        val ascUrl = params["ascUrl"] as String
+        val transactionId = params["transactionId"] as String
+        val paReq = params["paReq"] as String
+
+        activity?.let {
+            val dialog = ThreeDsDialogFragment.newInstance(
+                    ascUrl,
+                    transactionId,
+                    paReq
+            )
+            dialog.show(it.supportFragmentManager, "3DS")
+
+            dialog.setListener(object : ThreeDSDialogListener {
+                override fun onAuthorizationCompleted(md: String, paRes: String) {
+                    result.success(mapOf("md" to md, "paRes" to paRes))
+                }
+
+                override fun onAuthorizationFailed(html: String?) {
+                    result.error("AuthorizationFailed", "authorizationFailed", null)
+                }
+
+                override fun onCancel() {
+                    result.success(null);
+                }
+            })
+        }
     }
 }
