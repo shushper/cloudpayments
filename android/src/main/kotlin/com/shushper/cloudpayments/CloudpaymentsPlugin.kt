@@ -150,13 +150,13 @@ public class CloudpaymentsPlugin : FlutterPlugin, MethodCallHandler, ActivityAwa
 
     private fun show3ds(call: MethodCall, result: Result) {
         val params = call.arguments as Map<String, Any>
-        val ascUrl = params["ascUrl"] as String
+        val acsUrl = params["acsUrl"] as String
         val transactionId = params["transactionId"] as String
         val paReq = params["paReq"] as String
 
         activity?.let {
             val dialog = ThreeDsDialogFragment.newInstance(
-                    ascUrl,
+                    acsUrl,
                     transactionId,
                     paReq
             )

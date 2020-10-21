@@ -36,10 +36,10 @@ class Cloudpayments {
     return Cryptogram(arguments['cryptogram'], arguments['error']);
   }
 
-  static Future<ThreeDsResponse> show3ds(String ascUrl, String transactionId, String paReq) async {
+  static Future<ThreeDsResponse> show3ds(String acsUrl, String transactionId, String paReq) async {
     try {
       final dynamic arguments = await _channel.invokeMethod<dynamic>('show3ds', {
-        'ascUrl': ascUrl,
+        'acsUrl': acsUrl,
         'transactionId': transactionId,
         'paReq': paReq,
       });

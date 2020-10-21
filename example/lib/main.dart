@@ -156,7 +156,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     try {
       final transaction = await api.auth(cryptogram, cardHolder, amount);
       setLoading(false);
-      if (transaction.paReq != null && transaction.ascUrl != null) {
+      if (transaction.paReq != null && transaction.acsUrl != null) {
         _show3ds(transaction);
       } else {
         _scaffoldKey.currentState.showSnackBar(SnackBar(content: Text(transaction.cardHolderMessage)));
@@ -168,8 +168,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   }
 
   void _show3ds(Transaction transaction) async {
-    print('show 3ds');
-    final result = await Cloudpayments.show3ds(transaction.ascUrl, transaction.transactionId, transaction.paReq);
+    final result = await Cloudpayments.show3ds(transaction.acsUrl, transaction.transactionId, transaction.paReq);
 
     if (result != null) {
       if (result.success) {
@@ -181,7 +180,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   }
 
   void _post3ds(String md, String paRes) async {
-    print('_post3ds md = $md, paRes = $paRes');
     setLoading(true);
 
     try {
