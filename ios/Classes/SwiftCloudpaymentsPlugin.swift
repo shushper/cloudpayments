@@ -19,6 +19,8 @@ public class SwiftCloudpaymentsPlugin: NSObject, FlutterPlugin {
         case "cardCryptogram":
             let argument = cardCryptogram(call)
             result(argument)
+        case "show3ds":
+            show3ds(call, result: result)
         default:
             result(FlutterMethodNotImplemented)
         }
@@ -48,68 +50,21 @@ public class SwiftCloudpaymentsPlugin: NSObject, FlutterPlugin {
         
         
         let arguments: [String: Any?] = [
-          "cryptogram": cardCryptogram,
-          "error": nil,
+            "cryptogram": cardCryptogram,
+            "error": nil,
         ]
         return arguments
     }
+    
+    public func show3ds(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        let params = call.arguments as! [String: Any]
+        let acsUrl = params["acsUrl"] as? String
+        let transactionId = params["transactionId"] as? String
+        let paReq = params["paReq"] as? String
+        
+        var d3ds: D3DS = D3DS.init()
+//        d3ds.make3DSPayment(with: , andAcsURLString: acsUrl, andPaReqString: paReq, andTransactionIdString: transactionId)
+        
+        result(["md": "md", "paRes": "paRes"])
+    }
 }
-
-/*
- "isValidExpireDate" -> {
-                 val valid = isValidExpireDate(call)
-                 result.success(valid)
-             }
-             "cardCryptogram" -> {
-                 val argument = cardCryptogram(call)
-                 result.success(argument)
-             }
- */
-
-
-/*
- private fun isValidExpireDate(call: MethodCall): Boolean {
-         val params = call.arguments as Map<String, Any>
-         val cardNumber = params["expireDate"] as String
-         return CPCard.isValidExpDate(cardNumber)
-     }
-
-     private fun cardCryptogram(call: MethodCall): Map<String, Any?> {
-         val params = call.arguments as Map<String, Any>
-         val cardNumber = params["cardNumber"] as String
-         val cardDate = params["cardDate"] as String
-         val cardCVC = params["cardCVC"] as String
-         val publicId = params["publicId"] as String
-
-         val card = CPCard(cardNumber, cardDate, cardCVC)
-         var cardCryptogram: String? = null
-         var error: String? = null;
-
-         try {
-             cardCryptogram = card.cardCryptogram(publicId)
-         } catch (e: UnsupportedEncodingException) {
-             e.printStackTrace()
-             error = "UnsupportedEncodingException"
-         } catch (e: NoSuchPaddingException) {
-             e.printStackTrace()
-             error = "NoSuchPaddingException"
-         } catch (e: NoSuchAlgorithmException) {
-             e.printStackTrace()
-             error = "NoSuchAlgorithmException"
-         } catch (e: BadPaddingException) {
-             e.printStackTrace()
-             error = "BadPaddingException"
-         } catch (e: IllegalBlockSizeException) {
-             e.printStackTrace()
-             error = "IllegalBlockSizeException"
-         } catch (e: InvalidKeyException) {
-             e.printStackTrace()
-             error = "InvalidKeyException"
-         } catch (e: StringIndexOutOfBoundsException) {
-             e.printStackTrace()
-             error = "StringIndexOutOfBoundsException"
-         }
-
-         return mapOf("cryptogram" to cardCryptogram, "error" to error)
-     }
- */
