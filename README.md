@@ -5,12 +5,12 @@ A Flutter plugin for integrating Cloudpaymanets in Android and iOS applications.
 __Disclaimer__: It is not an official plugin. It uses [SDK-Android](https://github.com/cloudpayments/SDK-Android) on Android and [SDK-IOS](https://github.com/cloudpayments/SDK-iOS)
 on iOS.
 
-<img src="https://raw.githubusercontent.com/shushper/cloudpayments/master/images/example.gif"
-width=200 height=400/>
-
 See the official documentation:
 - [Android](https://developers.cloudpayments.ru/#sdk-dlya-android)
 - [iOS](https://developers.cloudpayments.ru/#sdk-dlya-ios)
+
+<img src="https://raw.githubusercontent.com/shushper/cloudpayments/master/images/example.gif"
+width=200 height=400/>
 
 ### Supports
 
@@ -22,7 +22,7 @@ See the official documentation:
 
 ### Initializing for Android
 
-If you want to be able to show 3ds dialog on Android, make MainActivity implements `FlutterFragmentActivity` instead of `FlutterActivity`
+If you want to show 3ds dialog on Android, make MainActivity implements `FlutterFragmentActivity` instead of `FlutterActivity`
 
 `android/app/src/main/.../MainActivity.kt`:
 

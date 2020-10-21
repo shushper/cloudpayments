@@ -299,48 +299,48 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     ),
                     onPressed: _onPayClick,
                   ),
-                  SizedBox(
-                    height: 16,
-                  ),
-                  Align(
-                    alignment: Alignment.center,
-                    child: Text('or'),
-                  ),
-                  SizedBox(
-                    height: 16,
-                  ),
-                  if (Platform.isAndroid)
-                    CustomButton(
-                      backgroundColor: Colors.black,
-                      onPressed: () {},
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            'Pay with',
-                            textAlign: TextAlign.center,
-                          ),
-                          SvgPicture.asset(
-                            'assets/images/google_pay.svg',
-                            height: 30,
-                          ),
-                        ],
-                      ),
-                    ),
-                  if (Platform.isIOS)
-                    CustomButton(
-                      backgroundColor: Colors.black,
-                      onPressed: () {},
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            'Pay with Apple',
-                            textAlign: TextAlign.center,
-                          ),
-                        ],
-                      ),
-                    ),
+                  // SizedBox(
+                  //   height: 16,
+                  // ),
+                  // Align(
+                  //   alignment: Alignment.center,
+                  //   child: Text('or'),
+                  // ),
+                  // SizedBox(
+                  //   height: 16,
+                  // ),
+                  // if (Platform.isAndroid)
+                  //   CustomButton(
+                  //     backgroundColor: Colors.black,
+                  //     onPressed: () {},
+                  //     child: Row(
+                  //       mainAxisAlignment: MainAxisAlignment.center,
+                  //       children: [
+                  //         Text(
+                  //           'Pay with',
+                  //           textAlign: TextAlign.center,
+                  //         ),
+                  //         SvgPicture.asset(
+                  //           'assets/images/google_pay.svg',
+                  //           height: 30,
+                  //         ),
+                  //       ],
+                  //     ),
+                  //   ),
+                  // if (Platform.isIOS)
+                  //   CustomButton(
+                  //     backgroundColor: Colors.black,
+                  //     onPressed: () {},
+                  //     child: Row(
+                  //       mainAxisAlignment: MainAxisAlignment.center,
+                  //       children: [
+                  //         Text(
+                  //           'Pay with Apple',
+                  //           textAlign: TextAlign.center,
+                  //         ),
+                  //       ],
+                  //     ),
+                  //   ),
                 ],
               ),
             ),
