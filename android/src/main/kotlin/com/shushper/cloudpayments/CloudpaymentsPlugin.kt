@@ -41,7 +41,7 @@ public class CloudpaymentsPlugin : FlutterPlugin, MethodCallHandler, ActivityAwa
     }
 
     override fun onAttachedToActivity(binding: ActivityPluginBinding) {
-        this.activity = binding.activity as FlutterFragmentActivity
+        this.activity = binding.activity as? FlutterFragmentActivity
     }
 
     override fun onDetachedFromActivity() {
@@ -53,7 +53,7 @@ public class CloudpaymentsPlugin : FlutterPlugin, MethodCallHandler, ActivityAwa
     }
 
     override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {
-        this.activity = binding.activity as FlutterFragmentActivity
+        this.activity = binding.activity as? FlutterFragmentActivity
     }
 
     // This static function is optional and equivalent to onAttachedToEngine. It supports the old
