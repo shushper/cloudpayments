@@ -1,6 +1,10 @@
 package com.shushper.cloudpayments
 
 import androidx.annotation.NonNull;
+import com.google.android.gms.common.api.ApiException
+import com.google.android.gms.wallet.IsReadyToPayRequest
+import com.google.android.gms.wallet.PaymentsClient
+import com.shushper.cloudpayments.googlepay.GooglePayUtil
 import com.shushper.cloudpayments.sdk.cp_card.CPCard
 import com.shushper.cloudpayments.sdk.three_ds.ThreeDSDialogListener
 import com.shushper.cloudpayments.sdk.three_ds.ThreeDsDialogFragment
@@ -30,6 +34,8 @@ public class CloudpaymentsPlugin : FlutterPlugin, MethodCallHandler, ActivityAwa
     private lateinit var channel: MethodChannel
     private var activity: FlutterFragmentActivity? = null
 
+    private var paymentsClient: PaymentsClient? = null
+
 
     override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
         channel = MethodChannel(flutterPluginBinding.binaryMessenger, "cloudpayments")
@@ -42,10 +48,14 @@ public class CloudpaymentsPlugin : FlutterPlugin, MethodCallHandler, ActivityAwa
 
     override fun onAttachedToActivity(binding: ActivityPluginBinding) {
         this.activity = binding.activity as? FlutterFragmentActivity
+        this.activity?.let {
+            paymentsClient = GooglePayUtil.createPaymentsClient(it)
+        }
     }
 
     override fun onDetachedFromActivity() {
         this.activity = null
+        this.paymentsClient = null
     }
 
     override fun onDetachedFromActivityForConfigChanges() {
@@ -89,6 +99,9 @@ public class CloudpaymentsPlugin : FlutterPlugin, MethodCallHandler, ActivityAwa
             }
             "show3ds" -> {
                 show3ds(call, result)
+            }
+            "isGooglePayAvailable" -> {
+                checkIsGooglePayAvailable(call, result)
             }
             else -> {
                 result.notImplemented()
@@ -175,6 +188,31 @@ public class CloudpaymentsPlugin : FlutterPlugin, MethodCallHandler, ActivityAwa
                     result.success(null);
                 }
             })
+        }
+    }
+
+    private fun checkIsGooglePayAvailable(call: MethodCall, result: Result) {
+        val isReadyToPayJson = GooglePayUtil.isReadyToPayRequest()
+        if (isReadyToPayJson == null) {
+            result.error("GooglePayError", "Google pay is not available", null)
+            return
+        }
+
+        val request = IsReadyToPayRequest.fromJson(isReadyToPayJson.toString())
+
+        if (request == null) {
+            result.error("GooglePayError", "Google pay is not available", null)
+            return
+        }
+
+        paymentsClient?.isReadyToPay(request)?.addOnCompleteListener { completedTask ->
+            try {
+                completedTask.getResult(ApiException::class.java)?.let { available ->
+                    result.success(available)
+                }
+            } catch (exception: ApiException) {
+                result.error("GooglePayError", exception.message, null)
+            }
         }
     }
 }

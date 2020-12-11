@@ -1,20 +1,22 @@
+import 'dart:io';
+
 import 'package:cloudpayments/cloudpayments.dart';
+import 'package:cloudpayments_example/common/extended_bloc.dart';
 import 'package:cloudpayments_example/constants.dart';
 import 'package:cloudpayments_example/network/api.dart';
 import 'package:cloudpayments_example/screens/checkout/checkout_event.dart';
 import 'package:cloudpayments_example/screens/checkout/checkout_state.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
-class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
+class CheckoutBloc extends ExtendedBloc<CheckoutEvent, CheckoutState> {
   final api = Api();
 
-  CheckoutBloc() : super(MainState(isLoading: false));
+  CheckoutBloc() : super(CheckoutState(isLoading: false, isGooglePayAvailable: false));
 
   @override
   Stream<CheckoutState> mapEventToState(CheckoutEvent event) async* {
-    if (event is PayButtonPressed) {
+    if (event is Init) {
+      yield* _init(event);
+    } else if (event is PayButtonPressed) {
       yield* _onPayButtonPressed(event);
     } else if (event is Auth) {
       yield* _auth(event);
@@ -25,6 +27,15 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
     }
   }
 
+  Stream<CheckoutState> _init(Init event) async* {
+    if (Platform.isAndroid) {
+      final isGooglePayAvailable = await Cloudpayments.isGooglePayAvailable();
+      yield state.copyWith(isGooglePayAvailable: isGooglePayAvailable);
+    } else if (Platform.isIOS) {
+
+    }
+  }
+
   Stream<CheckoutState> _onPayButtonPressed(PayButtonPressed event) async* {
     final isCardHolderValid = event.cardHolder.isNotEmpty;
     final isValidCardNumber = await Cloudpayments.isValidNumber(event.cardNumber);
@@ -32,20 +43,20 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
     final isValidCvcCode = event.cvcCode.length == 3;
 
     if (!isCardHolderValid) {
-      yield MainState(cardHolderError: 'Card holder can\'t be blank');
+      yield state.copyWith(cardHolderError: 'Card holder can\'t be blank');
       return;
     } else if (!isValidCardNumber) {
-      yield MainState(cardNumberError: 'Invalid card number');
+      yield state.copyWith(cardNumberError: 'Invalid card number');
       return;
     } else if (!isValidExpireDate) {
-      yield MainState(expireDateError: 'Date invalid or expired');
+      yield state.copyWith(expireDateError: 'Date invalid or expired');
       return;
     } else if (!isValidCvcCode) {
-      yield MainState(cvcError: 'Incorrect cvv code');
+      yield state.copyWith(cvcError: 'Incorrect cvv code');
       return;
     }
 
-    yield MainState();
+    yield state.copyWith(cardHolderError: null, cardNumberError: null, expireDateError: null, cvcError: null);
 
     final cryptogram = await Cloudpayments.cardCryptogram(
       event.cardNumber,
@@ -60,19 +71,19 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
   }
 
   Stream<CheckoutState> _auth(Auth event) async* {
-    yield MainState(isLoading: true);
+    yield CheckoutState(isLoading: true);
 
     try {
       final transaction = await api.auth(event.cryptogram, event.cardHolder, event.amount);
-      yield MainState(isLoading: false);
+      yield CheckoutState(isLoading: false);
       if (transaction.paReq != null && transaction.acsUrl != null) {
         add(Show3DS(transaction));
       } else {
-        yield ShowSnackBar(transaction.cardHolderMessage);
+        sendCommand(ShowSnackBar(transaction.cardHolderMessage));
       }
     } catch (e) {
-      yield MainState(isLoading: false);
-      yield ShowSnackBar("Error");
+      yield CheckoutState(isLoading: false);
+      sendCommand(ShowSnackBar("Error"));
     }
   }
 
@@ -84,24 +95,24 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
       if (result.success) {
         add(Post3DS(result.md, result.paRes));
       } else {
-        yield ShowSnackBar(result.error);
+        sendCommand(ShowSnackBar(result.error));
       }
     }
   }
 
   Stream<CheckoutState> _post3DS(Post3DS event) async* {
-    yield MainState(isLoading: true);
+    yield CheckoutState(isLoading: true);
 
     try {
       final transaction = await api.post3ds(event.md, event.paRes);
-      yield MainState(isLoading: false);
+      yield CheckoutState(isLoading: false);
 
       print(transaction);
 
-      yield ShowSnackBar(transaction.cardHolderMessage);
+      sendCommand(ShowSnackBar(transaction.cardHolderMessage));
     } catch (e) {
-      yield MainState(isLoading: false);
-      yield ShowSnackBar("Error");
+      yield CheckoutState(isLoading: false);
+      sendCommand(ShowSnackBar("Error"));
     }
   }
 }

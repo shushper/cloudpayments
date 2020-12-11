@@ -43,5 +43,5 @@ dependencies {
     implementation 'org.jsoup:jsoup:1.11.3'
     implementation 'com.google.code.gson:gson:2.8.5'
     implementation 'com.android.volley:volley:1.1.1'
-
+    implementation 'com.google.android.gms:play-services-wallet:18.1.2'
 }

@@ -9,8 +9,7 @@ class Cloudpayments {
   static const MethodChannel _channel = const MethodChannel('cloudpayments');
 
   static Future<bool> isValidNumber(String cardNumber) async {
-    final bool valid =
-        await _channel.invokeMethod<bool>('isValidNumber', {'cardNumber': cardNumber});
+    final bool valid = await _channel.invokeMethod<bool>('isValidNumber', {'cardNumber': cardNumber});
     return valid;
   }
 
@@ -52,6 +51,19 @@ class Cloudpayments {
     } on PlatformException catch (e) {
       return ThreeDsResponse(success: false, error: e.message);
     }
+  }
+
+  static Future<bool> isGooglePayAvailable() async {
+    if (Platform.isAndroid) {
+      try {
+        final bool available = await _channel.invokeMethod('isGooglePayAvailable');
+        return available;
+      } on PlatformException catch (e) {
+        print('${e.code}: ${e.message}');
+        return false;
+      }
+    }
+    return false;
   }
 
   static String _formatExpireDate(String expireDate) {
