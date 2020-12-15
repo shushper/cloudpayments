@@ -2,6 +2,7 @@ package com.shushper.cloudpayments.googlepay
 
 import android.app.Activity
 import com.google.android.gms.common.internal.Constants
+import com.google.android.gms.wallet.PaymentDataRequest
 import com.google.android.gms.wallet.PaymentsClient
 import com.google.android.gms.wallet.Wallet
 import com.google.android.gms.wallet.Wallet.WalletOptions
@@ -39,6 +40,21 @@ object GooglePayUtil {
         }
     }
 
+    private fun cardPaymentMethod(gatewayMerchantId: String): JSONObject {
+        val cardPaymentMethod = baseCardPaymentMethod()
+
+        val tokenizationSpecification = JSONObject().apply {
+            put("type", "PAYMENT_GATEWAY")
+            put("parameters", JSONObject().apply {
+                put("gateway", GooglePayConstants.PAYMENT_GATEWAY_TOKENIZATION_NAME)
+                put("gatewayMerchantId", gatewayMerchantId)
+            })
+        }
+
+        cardPaymentMethod.put("tokenizationSpecification", tokenizationSpecification)
+
+        return cardPaymentMethod
+    }
 
 
     fun isReadyToPayRequest(): JSONObject? {
@@ -61,5 +77,29 @@ object GooglePayUtil {
         return Wallet.getPaymentsClient(activity, walletOptions)
     }
 
+    private fun getTransactionInfo(price: String, currencyCode: String, countryCode: String): JSONObject {
+        return JSONObject().apply {
+            put("totalPrice", price)
+            put("totalPriceStatus", "FINAL")
+            put("countryCode", countryCode)
+            put("currencyCode", currencyCode)
+        }
+    }
+
+    fun getPaymentDataRequest(price: String, currencyCode: String, countryCode: String, merchantName: String, gatewayMerchantId: String): JSONObject? {
+        return try {
+            baseRequest.apply {
+                put("allowedPaymentMethods", JSONArray().put(cardPaymentMethod(gatewayMerchantId)))
+                put("transactionInfo", getTransactionInfo(price, currencyCode, countryCode))
+                put("merchantInfo", JSONObject().apply {
+                    put("merchantName", merchantName)
+                })
+                put("shippingAddressRequired", false)
+                put("emailRequired", true)
+            }
+        } catch (e: JSONException) {
+            null
+        }
+    }
 
 }

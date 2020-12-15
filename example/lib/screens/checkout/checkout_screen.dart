@@ -181,7 +181,9 @@ class _CheckoutScreenContentState extends State<CheckoutScreenContent> {
                             ),
                             CustomButton(
                               backgroundColor: Colors.black,
-                              onPressed: () {},
+                              onPressed: () {
+                                context.read<CheckoutBloc>().add(GooglePayPressed());
+                              },
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [

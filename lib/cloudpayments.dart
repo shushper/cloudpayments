@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:cloudpayments/cryptogram.dart';
+import 'package:cloudpayments/google_pay_response.dart';
 import 'package:cloudpayments/three_ds_response.dart';
 import 'package:flutter/services.dart';
 
@@ -64,6 +65,32 @@ class Cloudpayments {
       }
     }
     return false;
+  }
+
+  static Future<GooglePayResponse> requestGooglePayPayment(String price, String currencyCode, String countryCode, String merchantName, String publicId) async {
+    if (Platform.isAndroid) {
+      try {
+        print('requestGooglePayPayment');
+        final dynamic result = await _channel.invokeMethod<dynamic>('requestGooglePayPayment', {
+          'price': price,
+          'currencyCode': currencyCode,
+          'countryCode': countryCode,
+          'merchantName': merchantName,
+          'publicId': publicId,
+        });
+        return GooglePayResponse.fromMap(result);
+      } on PlatformException catch (e) {
+        print('platform exception');
+        print('${e.code}: ${e.message}');
+        return null;
+      } catch (e) {
+        print('exception');
+        print(e);
+        return null;
+      }
+    } else {
+      throw Exception("Google Pay is allowed only on Android");
+    }
   }
 
   static String _formatExpireDate(String expireDate) {

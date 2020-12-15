@@ -21,9 +21,17 @@ class Init extends CheckoutEvent {}
 class Auth extends CheckoutEvent {
   final String cryptogram;
   final String cardHolder;
-  final int amount;
+  final String amount;
 
   Auth(this.cryptogram, this.cardHolder, this.amount);
+}
+
+class Charge extends CheckoutEvent {
+  final String token;
+  final String cardHolder;
+  final String amount;
+
+  Charge(this.token, this.cardHolder, this.amount);
 }
 
 class Show3DS extends CheckoutEvent {
@@ -37,4 +45,8 @@ class Post3DS extends CheckoutEvent {
   final String paRes;
 
   Post3DS(this.md, this.paRes);
+}
+
+class GooglePayPressed extends CheckoutEvent {
+
 }
