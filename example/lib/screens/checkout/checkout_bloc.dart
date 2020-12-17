@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:cloudpayments/cloudpayments.dart';
+import 'package:cloudpayments/cloudpayments_apple_pay.dart';
 import 'package:cloudpayments_example/common/extended_bloc.dart';
 import 'package:cloudpayments_example/constants.dart';
 import 'package:cloudpayments_example/network/api.dart';
@@ -9,6 +10,7 @@ import 'package:cloudpayments_example/screens/checkout/checkout_state.dart';
 
 class CheckoutBloc extends ExtendedBloc<CheckoutEvent, CheckoutState> {
   final api = Api();
+  final applePay = CloudpaymentsApplePay();
 
   CheckoutBloc() : super(CheckoutState(isLoading: false, isGooglePayAvailable: false));
 
@@ -26,6 +28,8 @@ class CheckoutBloc extends ExtendedBloc<CheckoutEvent, CheckoutState> {
       yield* _post3DS(event);
     } else if (event is GooglePayPressed) {
       yield* _googlePayPressed(event);
+    } else if (event is ApplePayPressed) {
+      yield* _applePayPressed(event);
     } else if (event is Charge) {
       yield* _charge(event);
     }
@@ -34,8 +38,11 @@ class CheckoutBloc extends ExtendedBloc<CheckoutEvent, CheckoutState> {
   Stream<CheckoutState> _init(Init event) async* {
     if (Platform.isAndroid) {
       final isGooglePayAvailable = await Cloudpayments.isGooglePayAvailable();
-      yield state.copyWith(isGooglePayAvailable: isGooglePayAvailable);
-    } else if (Platform.isIOS) {}
+      yield state.copyWith(isGooglePayAvailable: isGooglePayAvailable, isApplePayAvailable: false);
+    } else if (Platform.isIOS) {
+      final isApplePayAvailable = await applePay.isApplePayAvailable();
+      yield state.copyWith(isApplePayAvailable: isApplePayAvailable, isGooglePayAvailable: false);
+    }
   }
 
   Stream<CheckoutState> _onPayButtonPressed(PayButtonPressed event) async* {
@@ -69,6 +76,65 @@ class CheckoutBloc extends ExtendedBloc<CheckoutEvent, CheckoutState> {
 
     if (cryptogram.cryptogram != null) {
       add(Auth(cryptogram.cryptogram, event.cardHolder, '1'));
+    }
+  }
+
+  Stream<CheckoutState> _googlePayPressed(GooglePayPressed event) async* {
+    yield state.copyWith(isLoading: true);
+
+    try {
+      final result = await Cloudpayments.requestGooglePayPayment(
+          '2.34', 'RUB', 'RU', Constants.MERCHANT_NAME, Constants.MERCHANT_PUBLIC_ID);
+
+      yield state.copyWith(isLoading: false);
+
+      if (result != null) {
+        if (result.status == "SUCCESS") {
+          final token = result.result['paymentMethodData']['tokenizationData']['token'];
+          add(Charge(token, 'Google Pay', '2.34'));
+        } else if (result.status == "ERROR") {
+          sendCommand(ShowSnackBar(result.errorDescription));
+        }
+      }
+    } catch (e) {
+      yield state.copyWith(isLoading: false);
+      sendCommand(ShowSnackBar("Error"));
+    }
+  }
+
+  Stream<CheckoutState> _applePayPressed(ApplePayPressed event) async* {
+    yield state.copyWith(isLoading: true);
+
+    try {
+      final result = await applePay.requestApplePayPayment(
+        merchantId: 'merchant.com.YOURDOMAIN',
+        currencyCode: 'RUB',
+        countryCode: 'RU',
+        products: [
+          {"name": "Манго", "price": "650.50"}
+        ],
+      );
+
+      if (result != null) {
+        add(Auth(result, '', '650.50'));
+      }
+    } catch (e) {
+      print('Error $e');
+      yield state.copyWith(isLoading: false);
+      sendCommand(ShowSnackBar("Error"));
+    }
+  }
+
+  Stream<CheckoutState> _charge(Charge event) async* {
+    yield state.copyWith(isLoading: true);
+
+    try {
+      final transaction = await api.charge(event.token, event.cardHolder, event.amount);
+      yield state.copyWith(isLoading: false);
+      sendCommand(ShowSnackBar(transaction.cardHolderMessage));
+    } catch (e) {
+      yield state.copyWith(isLoading: false);
+      sendCommand(ShowSnackBar("Error"));
     }
   }
 
@@ -107,42 +173,6 @@ class CheckoutBloc extends ExtendedBloc<CheckoutEvent, CheckoutState> {
 
     try {
       final transaction = await api.post3ds(event.md, event.paRes);
-      yield state.copyWith(isLoading: false);
-      sendCommand(ShowSnackBar(transaction.cardHolderMessage));
-    } catch (e) {
-      yield state.copyWith(isLoading: false);
-      sendCommand(ShowSnackBar("Error"));
-    }
-  }
-
-  Stream<CheckoutState> _googlePayPressed(GooglePayPressed event) async* {
-    yield state.copyWith(isLoading: true);
-
-    try {
-      final result = await Cloudpayments.requestGooglePayPayment(
-          '2.34', 'RUB', 'RU', Constants.MERCHANT_NAME, Constants.MERCHANT_PUBLIC_ID);
-
-      yield state.copyWith(isLoading: false);
-
-      if (result != null) {
-        if (result.status == "SUCCESS") {
-          final token = result.result['paymentMethodData']['tokenizationData']['token'];
-          add(Charge(token, 'Google Pay', '2.34'));
-        } else if (result.status == "ERROR") {
-          sendCommand(ShowSnackBar(result.errorDescription));
-        }
-      }
-    } catch (e) {
-      yield state.copyWith(isLoading: false);
-      sendCommand(ShowSnackBar("Error"));
-    }
-  }
-
-  Stream<CheckoutState> _charge(Charge event) async* {
-    yield state.copyWith(isLoading: true);
-
-    try {
-      final transaction = await api.charge(event.token, event.cardHolder, event.amount);
       yield state.copyWith(isLoading: false);
       sendCommand(ShowSnackBar(transaction.cardHolderMessage));
     } catch (e) {

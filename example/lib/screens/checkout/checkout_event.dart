@@ -50,3 +50,7 @@ class Post3DS extends CheckoutEvent {
 class GooglePayPressed extends CheckoutEvent {
 
 }
+
+class ApplePayPressed extends CheckoutEvent {
+
+}

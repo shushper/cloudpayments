@@ -167,54 +167,9 @@ class _CheckoutScreenContentState extends State<CheckoutScreenContent> {
                         onPressed: () => _onPayClick(context),
                       ),
                       if (state.isGooglePayAvailable)
-                        Column(
-                          children: [
-                            SizedBox(
-                              height: 16,
-                            ),
-                            Align(
-                              alignment: Alignment.center,
-                              child: Text('or'),
-                            ),
-                            SizedBox(
-                              height: 16,
-                            ),
-                            CustomButton(
-                              backgroundColor: Colors.black,
-                              onPressed: () {
-                                context.read<CheckoutBloc>().add(GooglePayPressed());
-                              },
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    'Pay with',
-                                    textAlign: TextAlign.center,
-                                  ),
-                                  SvgPicture.asset(
-                                    'assets/images/google_pay.svg',
-                                    height: 30,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        )
-
-                      // if (Platform.isIOS)
-                      //   CustomButton(
-                      //     backgroundColor: Colors.black,
-                      //     onPressed: () {},
-                      //     child: Row(
-                      //       mainAxisAlignment: MainAxisAlignment.center,
-                      //       children: [
-                      //         Text(
-                      //           'Pay with Apple',
-                      //           textAlign: TextAlign.center,
-                      //         ),
-                      //       ],
-                      //     ),
-                      //   ),
+                        GooglePaySection(),
+                      if (state.isApplePayAvailable)
+                        ApplePaySection(),
                     ],
                   ),
                 ),
@@ -223,6 +178,81 @@ class _CheckoutScreenContentState extends State<CheckoutScreenContent> {
           },
         ),
       ),
+    );
+  }
+}
+
+class GooglePaySection extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return PaySection(
+      CustomButton(
+        backgroundColor: Colors.black,
+        onPressed: () {
+          context.read<CheckoutBloc>().add(GooglePayPressed());
+        },
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              'Pay with',
+              textAlign: TextAlign.center,
+            ),
+            SvgPicture.asset(
+              'assets/images/google_pay.svg',
+              height: 30,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class ApplePaySection extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return PaySection(
+      CustomButton(
+        backgroundColor: Colors.black,
+        onPressed: () {
+          context.read<CheckoutBloc>().add(ApplePayPressed());
+        },
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              'Pay with Apple',
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class PaySection extends StatelessWidget {
+  final Widget payButton;
+
+  PaySection(this.payButton);
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        SizedBox(
+          height: 16,
+        ),
+        Align(
+          alignment: Alignment.center,
+          child: Text('or'),
+        ),
+        SizedBox(
+          height: 16,
+        ),
+        payButton
+      ],
     );
   }
 }

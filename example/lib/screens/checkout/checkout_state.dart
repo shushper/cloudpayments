@@ -3,6 +3,7 @@ import 'package:equatable/equatable.dart';
 class CheckoutState extends Equatable {
   final bool isLoading;
   final bool isGooglePayAvailable;
+  final bool isApplePayAvailable;
   final String cardHolderError;
   final String cardNumberError;
   final String expireDateError;
@@ -11,6 +12,7 @@ class CheckoutState extends Equatable {
   CheckoutState({
     this.isLoading = false,
     this.isGooglePayAvailable = false,
+    this.isApplePayAvailable = false,
     this.cardHolderError,
     this.cardNumberError,
     this.expireDateError,
@@ -21,6 +23,7 @@ class CheckoutState extends Equatable {
   List<Object> get props => [
         isLoading,
         isGooglePayAvailable,
+        isApplePayAvailable,
         cardNumberError,
         cardNumberError,
         expireDateError,
@@ -30,6 +33,7 @@ class CheckoutState extends Equatable {
   CheckoutState copyWith({
     bool isLoading,
     bool isGooglePayAvailable,
+    bool isApplePayAvailable,
     String cardHolderError,
     String cardNumberError,
     String expireDateError,
@@ -38,6 +42,7 @@ class CheckoutState extends Equatable {
     return CheckoutState(
       isLoading: isLoading ?? this.isLoading,
       isGooglePayAvailable: isGooglePayAvailable ?? this.isGooglePayAvailable,
+      isApplePayAvailable: isApplePayAvailable ?? this.isApplePayAvailable,
       cardHolderError: cardHolderError,
       cardNumberError: cardNumberError,
       expireDateError: expireDateError,
