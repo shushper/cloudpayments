@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:cloudpayments/cryptogram.dart';
 import 'package:cloudpayments/google_pay_response.dart';
 import 'package:cloudpayments/three_ds_response.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class Cloudpayments {
@@ -60,7 +61,6 @@ class Cloudpayments {
         final bool available = await _channel.invokeMethod('isGooglePayAvailable');
         return available;
       } on PlatformException catch (e) {
-        print('${e.code}: ${e.message}');
         return false;
       }
     }
@@ -70,7 +70,6 @@ class Cloudpayments {
   static Future<GooglePayResponse> requestGooglePayPayment(String price, String currencyCode, String countryCode, String merchantName, String publicId) async {
     if (Platform.isAndroid) {
       try {
-        print('requestGooglePayPayment');
         final dynamic result = await _channel.invokeMethod<dynamic>('requestGooglePayPayment', {
           'price': price,
           'currencyCode': currencyCode,
@@ -80,16 +79,43 @@ class Cloudpayments {
         });
         return GooglePayResponse.fromMap(result);
       } on PlatformException catch (e) {
-        print('platform exception');
-        print('${e.code}: ${e.message}');
         return null;
       } catch (e) {
-        print('exception');
-        print(e);
         return null;
       }
     } else {
       throw Exception("Google Pay is allowed only on Android");
+    }
+  }
+
+  static Future<bool> isApplePayAvailable() async {
+    if (Platform.isIOS) {
+      try {
+        final bool available = await _channel.invokeMethod('isApplePayAvailable');
+        return available;
+      } on PlatformException catch (e) {
+        return false;
+      }
+    }
+    return false;
+  }
+
+  static Future<String> requestApplePayPayment({
+    @required String merchantId,
+    @required String currencyCode,
+    @required String countryCode,
+    @required List<Map<String,String>> products
+  }) async {
+    if (Platform.isIOS) {
+      final dynamic result = await _channel.invokeMethod<dynamic>('requestApplePayPayment', {
+        'merchantId': merchantId,
+        'currencyCode': currencyCode,
+        'countryCode': countryCode,
+        'products': products
+      });
+      return result;
+    } else {
+      throw Exception("Apple Pay is allowed only on Android");
     }
   }
 

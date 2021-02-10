@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:cloudpayments/cloudpayments.dart';
-import 'package:cloudpayments/cloudpayments_apple_pay.dart';
 import 'package:cloudpayments_example/common/extended_bloc.dart';
 import 'package:cloudpayments_example/constants.dart';
 import 'package:cloudpayments_example/network/api.dart';
@@ -10,7 +9,6 @@ import 'package:cloudpayments_example/screens/checkout/checkout_state.dart';
 
 class CheckoutBloc extends ExtendedBloc<CheckoutEvent, CheckoutState> {
   final api = Api();
-  final applePay = CloudpaymentsApplePay();
 
   CheckoutBloc() : super(CheckoutState(isLoading: false, isGooglePayAvailable: false));
 
@@ -40,7 +38,7 @@ class CheckoutBloc extends ExtendedBloc<CheckoutEvent, CheckoutState> {
       final isGooglePayAvailable = await Cloudpayments.isGooglePayAvailable();
       yield state.copyWith(isGooglePayAvailable: isGooglePayAvailable, isApplePayAvailable: false);
     } else if (Platform.isIOS) {
-      final isApplePayAvailable = await applePay.isApplePayAvailable();
+      final isApplePayAvailable = await Cloudpayments.isApplePayAvailable();
       yield state.copyWith(isApplePayAvailable: isApplePayAvailable, isGooglePayAvailable: false);
     }
   }
@@ -106,7 +104,7 @@ class CheckoutBloc extends ExtendedBloc<CheckoutEvent, CheckoutState> {
     yield state.copyWith(isLoading: true);
 
     try {
-      final result = await applePay.requestApplePayPayment(
+      final result = await Cloudpayments.requestApplePayPayment(
         merchantId: 'merchant.com.YOURDOMAIN',
         currencyCode: 'RUB',
         countryCode: 'RU',
