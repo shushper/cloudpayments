@@ -160,6 +160,7 @@ extension SwiftCloudpaymentsPlugin: PKPaymentAuthorizationViewControllerDelegate
     
     public func paymentAuthorizationViewControllerDidFinish(_ controller: PKPaymentAuthorizationViewController) {
         controller.dismiss(animated: true, completion: nil)
+        lastPaymentResult?.self(FlutterError(code: "RequestPayment", message: "Payment cancelled", details: nil))
     }
 }
 

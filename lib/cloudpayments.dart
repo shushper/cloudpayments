@@ -67,7 +67,8 @@ class Cloudpayments {
     return false;
   }
 
-  static Future<GooglePayResponse> requestGooglePayPayment(String price, String currencyCode, String countryCode, String merchantName, String publicId) async {
+  static Future<GooglePayResponse> requestGooglePayPayment(
+      String price, String currencyCode, String countryCode, String merchantName, String publicId) async {
     if (Platform.isAndroid) {
       try {
         final dynamic result = await _channel.invokeMethod<dynamic>('requestGooglePayPayment', {
@@ -100,20 +101,25 @@ class Cloudpayments {
     return false;
   }
 
-  static Future<String> requestApplePayPayment({
-    @required String merchantId,
-    @required String currencyCode,
-    @required String countryCode,
-    @required List<Map<String,String>> products
-  }) async {
+  static Future<String> requestApplePayPayment(
+      {@required String merchantId,
+      @required String currencyCode,
+      @required String countryCode,
+      @required List<Map<String, String>> products}) async {
     if (Platform.isIOS) {
-      final dynamic result = await _channel.invokeMethod<dynamic>('requestApplePayPayment', {
-        'merchantId': merchantId,
-        'currencyCode': currencyCode,
-        'countryCode': countryCode,
-        'products': products
-      });
-      return result;
+      try {
+        final dynamic result = await _channel.invokeMethod<dynamic>('requestApplePayPayment', {
+          'merchantId': merchantId,
+          'currencyCode': currencyCode,
+          'countryCode': countryCode,
+          'products': products,
+        });
+        return result;
+      } on PlatformException catch (e) {
+        return null;
+      } catch (e) {
+        return null;
+      }
     } else {
       throw Exception("Apple Pay is allowed only on Android");
     }
