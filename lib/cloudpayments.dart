@@ -55,39 +55,7 @@ class Cloudpayments {
     }
   }
 
-  static Future<bool> isGooglePayAvailable() async {
-    if (Platform.isAndroid) {
-      try {
-        final bool available = await _channel.invokeMethod('isGooglePayAvailable');
-        return available;
-      } on PlatformException catch (e) {
-        return false;
-      }
-    }
-    return false;
-  }
 
-  static Future<GooglePayResponse> requestGooglePayPayment(
-      String price, String currencyCode, String countryCode, String merchantName, String publicId) async {
-    if (Platform.isAndroid) {
-      try {
-        final dynamic result = await _channel.invokeMethod<dynamic>('requestGooglePayPayment', {
-          'price': price,
-          'currencyCode': currencyCode,
-          'countryCode': countryCode,
-          'merchantName': merchantName,
-          'publicId': publicId,
-        });
-        return GooglePayResponse.fromMap(result);
-      } on PlatformException catch (e) {
-        return null;
-      } catch (e) {
-        return null;
-      }
-    } else {
-      throw Exception("Google Pay is allowed only on Android");
-    }
-  }
 
   static Future<bool> isApplePayAvailable() async {
     if (Platform.isIOS) {

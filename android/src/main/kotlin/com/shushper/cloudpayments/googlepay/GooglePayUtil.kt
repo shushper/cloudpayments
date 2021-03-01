@@ -69,9 +69,9 @@ object GooglePayUtil {
     }
 
 
-    fun createPaymentsClient(activity: Activity): PaymentsClient {
+    fun createPaymentsClient(activity: Activity, environment: Int): PaymentsClient {
         val walletOptions = Wallet.WalletOptions.Builder()
-                .setEnvironment(GooglePayConstants.PAYMENTS_ENVIRONMENT)
+                .setEnvironment(environment)
                 .build()
 
         return Wallet.getPaymentsClient(activity, walletOptions)

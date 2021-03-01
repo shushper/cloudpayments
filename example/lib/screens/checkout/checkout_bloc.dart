@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:cloudpayments/cloudpayments.dart';
+import 'package:cloudpayments/cloudpayments_google_pay.dart';
 import 'package:cloudpayments_example/common/extended_bloc.dart';
 import 'package:cloudpayments_example/constants.dart';
 import 'package:cloudpayments_example/network/api.dart';
@@ -9,6 +10,7 @@ import 'package:cloudpayments_example/screens/checkout/checkout_state.dart';
 
 class CheckoutBloc extends ExtendedBloc<CheckoutEvent, CheckoutState> {
   final api = Api();
+  final googlePay = CloudpaymentsGooglePay(GooglePayEnvironment.test);
 
   CheckoutBloc() : super(CheckoutState(isLoading: false, isGooglePayAvailable: false));
 
@@ -35,7 +37,7 @@ class CheckoutBloc extends ExtendedBloc<CheckoutEvent, CheckoutState> {
 
   Stream<CheckoutState> _init(Init event) async* {
     if (Platform.isAndroid) {
-      final isGooglePayAvailable = await Cloudpayments.isGooglePayAvailable();
+      final isGooglePayAvailable = await googlePay.isGooglePayAvailable();
       yield state.copyWith(isGooglePayAvailable: isGooglePayAvailable, isApplePayAvailable: false);
     } else if (Platform.isIOS) {
       final isApplePayAvailable = await Cloudpayments.isApplePayAvailable();
@@ -81,8 +83,13 @@ class CheckoutBloc extends ExtendedBloc<CheckoutEvent, CheckoutState> {
     yield state.copyWith(isLoading: true);
 
     try {
-      final result = await Cloudpayments.requestGooglePayPayment(
-          '2.34', 'RUB', 'RU', Constants.MERCHANT_NAME, Constants.MERCHANT_PUBLIC_ID);
+      final result = await googlePay.requestGooglePayPayment(
+        price: '2.34',
+        currencyCode: 'RUB',
+        countryCode: 'RU',
+        merchantName: Constants.MERCHANT_NAME,
+        publicId: Constants.MERCHANT_PUBLIC_ID,
+      );
 
       yield state.copyWith(isLoading: false);
 

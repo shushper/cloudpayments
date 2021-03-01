@@ -55,9 +55,6 @@ public class CloudpaymentsPlugin : FlutterPlugin, MethodCallHandler, ActivityAwa
 
     override fun onAttachedToActivity(binding: ActivityPluginBinding) {
         this.activity = binding.activity as? FlutterFragmentActivity
-        this.activity?.let {
-            paymentsClient = GooglePayUtil.createPaymentsClient(it)
-        }
         this.binding = binding
         binding.addActivityResultListener(this)
     }
@@ -116,6 +113,9 @@ public class CloudpaymentsPlugin : FlutterPlugin, MethodCallHandler, ActivityAwa
             }
             "show3ds" -> {
                 show3ds(call, result)
+            }
+            "createPaymentsClient" -> {
+                createPaymentsClient(call, result)
             }
             "isGooglePayAvailable" -> {
                 checkIsGooglePayAvailable(call, result)
@@ -211,6 +211,26 @@ public class CloudpaymentsPlugin : FlutterPlugin, MethodCallHandler, ActivityAwa
         }
     }
 
+    private fun createPaymentsClient(call: MethodCall, result: Result) {
+        val params = call.arguments as Map<String, Any>
+
+        val environment = when (params["environment"] as String) {
+            "test" -> WalletConstants.ENVIRONMENT_TEST
+            "production" -> WalletConstants.ENVIRONMENT_PRODUCTION
+            else -> WalletConstants.ENVIRONMENT_TEST
+        }
+
+        val activity = activity
+
+        if (activity != null) {
+            paymentsClient = GooglePayUtil.createPaymentsClient(activity, environment);
+            result.success(null)
+        } else {
+            result.error("GooglePayError", "Couldn't create Payments Client", null)
+        }
+
+    }
+
     private fun checkIsGooglePayAvailable(call: MethodCall, result: Result) {
         val isReadyToPayJson = GooglePayUtil.isReadyToPayRequest()
         if (isReadyToPayJson == null) {
@@ -303,8 +323,8 @@ public class CloudpaymentsPlugin : FlutterPlugin, MethodCallHandler, ActivityAwa
 
     private fun onPaymentCanceled() {
         lastPaymentResult?.success(mapOf(
-            "status" to "CANCELED"
-            ))
+                "status" to "CANCELED"
+        ))
 
         lastPaymentResult = null
     }
@@ -318,10 +338,10 @@ public class CloudpaymentsPlugin : FlutterPlugin, MethodCallHandler, ActivityAwa
                 lastPaymentResult?.error("RequestPayment", "Status is null", null)
             } else {
                 lastPaymentResult?.success(mapOf(
-                    "status" to "ERROR",
-                    "error_code" to status.statusCode,
-                    "error_message" to status.statusMessage,
-                    "error_description" to status.toString()
+                        "status" to "ERROR",
+                        "error_code" to status.statusCode,
+                        "error_message" to status.statusMessage,
+                        "error_description" to status.toString()
                 ))
             }
         }
