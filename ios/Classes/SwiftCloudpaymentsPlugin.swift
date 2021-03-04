@@ -31,8 +31,8 @@ public class SwiftCloudpaymentsPlugin: NSObject, FlutterPlugin {
         case "isValidNumber":
             let valid = isValidNumber(call)
             result(valid)
-        case "isValidExpireDate":
-            let valid = isValidExpireDate(call)
+        case "isValidExpiryDate":
+            let valid = isValidExpiryDate(call)
             result(valid)
         case "cardCryptogram":
             let argument = cardCryptogram(call)
@@ -54,10 +54,10 @@ public class SwiftCloudpaymentsPlugin: NSObject, FlutterPlugin {
         return Card.isCardNumberValid(cardNumber)
     }
     
-    private func isValidExpireDate(_ call: FlutterMethodCall) -> Bool {
+    private func isValidExpiryDate(_ call: FlutterMethodCall) -> Bool {
         let params = call.arguments as! [String: Any]
-        let expireDate = params["expireDate"] as? String
-        return Card.isExpDateValid(expireDate)
+        let expiryDate = params["expiryDate"] as? String
+        return Card.isExpDateValid(expiryDate)
     }
     
     private func cardCryptogram(_ call: FlutterMethodCall) -> [String: Any?] {
