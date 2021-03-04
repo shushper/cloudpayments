@@ -6,7 +6,7 @@ class CheckoutState extends Equatable {
   final bool isApplePayAvailable;
   final String cardHolderError;
   final String cardNumberError;
-  final String expireDateError;
+  final String expiryDateError;
   final String cvcError;
 
   CheckoutState({
@@ -15,7 +15,7 @@ class CheckoutState extends Equatable {
     this.isApplePayAvailable = false,
     this.cardHolderError,
     this.cardNumberError,
-    this.expireDateError,
+    this.expiryDateError,
     this.cvcError,
   });
 
@@ -24,9 +24,9 @@ class CheckoutState extends Equatable {
         isLoading,
         isGooglePayAvailable,
         isApplePayAvailable,
+        cardHolderError,
         cardNumberError,
-        cardNumberError,
-        expireDateError,
+        expiryDateError,
         cvcError,
       ];
 
@@ -36,7 +36,7 @@ class CheckoutState extends Equatable {
     bool isApplePayAvailable,
     String cardHolderError,
     String cardNumberError,
-    String expireDateError,
+    String expiryDateError,
     String cvcError,
   }) {
     return CheckoutState(
@@ -45,7 +45,7 @@ class CheckoutState extends Equatable {
       isApplePayAvailable: isApplePayAvailable ?? this.isApplePayAvailable,
       cardHolderError: cardHolderError,
       cardNumberError: cardNumberError,
-      expireDateError: expireDateError,
+      expiryDateError: expiryDateError,
       cvcError: cvcError,
     );
   }

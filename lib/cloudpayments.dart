@@ -2,32 +2,45 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:cloudpayments/cryptogram.dart';
-import 'package:cloudpayments/google_pay_response.dart';
 import 'package:cloudpayments/three_ds_response.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+/// Contains helpful methods that allow you to check payment card parameters validity and create a card cryptogram.
 class Cloudpayments {
   static const MethodChannel _channel = const MethodChannel('cloudpayments');
 
+  /// Checks if the given [cardNumber] is valid.
   static Future<bool> isValidNumber(String cardNumber) async {
     final bool valid = await _channel.invokeMethod<bool>('isValidNumber', {'cardNumber': cardNumber});
     return valid;
   }
 
-  static Future<bool> isValidExpireDate(String expireDate) async {
-    final date = _formatExpireDate(expireDate);
-    final valid = await _channel.invokeMethod<bool>('isValidExpireDate', {'expireDate': date});
+  /// Checks if the given card [expiryDate] is valid and not expired.
+  ///
+  /// [expiryDate] must be in the format 'MM/YY'
+  static Future<bool> isValidExpiryDate(String expiryDate) async {
+    final date = _formatExpiryDate(expiryDate);
+    final valid = await _channel.invokeMethod<bool>('isValidExpiryDate', {'expiryDate': date});
     return valid;
   }
 
-  static Future<Cryptogram> cardCryptogram(
-    String cardNumber,
-    String cardDate,
-    String cardCVC,
-    String publicId,
-  ) async {
-    final date = _formatExpireDate(cardDate);
+  /// Generates card cryptogram.
+  ///
+  /// [cardNumber] - Card number. For example 4242424242424242.
+  ///
+  /// [cardDate] - Card expiry date. Must be in the format 'MM/YY'. For example 03/24.
+  ///
+  /// [cardCVC] - Card CVC or CVV code.
+  ///
+  /// [publicId] - Your Cloudpayments public id. You can obtain it in your [Cloudpayments account](https://merchant.cloudpayments.ru/)
+  static Future<Cryptogram> cardCryptogram({
+    @required String cardNumber,
+    @required String cardDate,
+    @required String cardCVC,
+    @required String publicId,
+  }) async {
+    final date = _formatExpiryDate(cardDate);
     final dynamic arguments = await _channel.invokeMethod<dynamic>('cardCryptogram', {
       'cardNumber': cardNumber,
       'cardDate': date,
@@ -37,7 +50,15 @@ class Cloudpayments {
     return Cryptogram(arguments['cryptogram'], arguments['error']);
   }
 
-  static Future<ThreeDsResponse> show3ds(String acsUrl, String transactionId, String paReq) async {
+  /// Shows 3DS dialog. [ascUrl], [transactionId], [paReq] are returned in response from the Cloudpayments api
+  /// if a 3DS authentication is needed.
+  ///
+  /// Returns [ThreeDsResponse]. You have to use parameters of [ThreeDsResponse] in post3ds api method.
+  static Future<ThreeDsResponse> show3ds({
+    @required String acsUrl,
+    @required String transactionId,
+    @required String paReq,
+  }) async {
     try {
       final dynamic arguments = await _channel.invokeMethod<dynamic>('show3ds', {
         'acsUrl': acsUrl,
@@ -55,50 +76,12 @@ class Cloudpayments {
     }
   }
 
-
-
-  static Future<bool> isApplePayAvailable() async {
-    if (Platform.isIOS) {
-      try {
-        final bool available = await _channel.invokeMethod('isApplePayAvailable');
-        return available;
-      } on PlatformException catch (e) {
-        return false;
-      }
-    }
-    return false;
-  }
-
-  static Future<String> requestApplePayPayment(
-      {@required String merchantId,
-      @required String currencyCode,
-      @required String countryCode,
-      @required List<Map<String, String>> products}) async {
-    if (Platform.isIOS) {
-      try {
-        final dynamic result = await _channel.invokeMethod<dynamic>('requestApplePayPayment', {
-          'merchantId': merchantId,
-          'currencyCode': currencyCode,
-          'countryCode': countryCode,
-          'products': products,
-        });
-        return result;
-      } on PlatformException catch (e) {
-        return null;
-      } catch (e) {
-        return null;
-      }
-    } else {
-      throw Exception("Apple Pay is allowed only on Android");
-    }
-  }
-
-  static String _formatExpireDate(String expireDate) {
+  static String _formatExpiryDate(String expiryDate) {
     String date;
     if (Platform.isAndroid) {
-      date = expireDate.replaceAll('/', '');
+      date = expiryDate.replaceAll('/', '');
     } else if (Platform.isIOS) {
-      date = expireDate;
+      date = expiryDate;
     }
     return date;
   }

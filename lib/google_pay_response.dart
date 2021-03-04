@@ -11,7 +11,7 @@ class GooglePayResponse {
 
   GooglePayResponse.fromMap(Map<dynamic, dynamic> map)
       : status = map['status'],
-        result = map['result'] != null ? parseResult(map['result'])  : null,
+        result = map['result'] != null ? parseResult(map['result']) : null,
         errorCode = map['errorCode'],
         errorMessage = map['errorMessage'],
         errorDescription = map['errorDescription'];
@@ -20,4 +20,13 @@ class GooglePayResponse {
     final decoded = jsonDecode(result) as Map<String, dynamic>;
     return decoded;
   }
+
+  /// Payment token than you can use in payment by a cryptogram
+  String get token => result['paymentMethodData']['tokenizationData']['token'];
+
+  /// True if token was obtained successfully
+  bool get isSuccess => status == "SUCCESS";
+
+  /// True if there was an error while receiving the token
+  bool get isError => status == "ERROR";
 }

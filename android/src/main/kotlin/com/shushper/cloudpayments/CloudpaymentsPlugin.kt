@@ -31,7 +31,7 @@ import javax.crypto.NoSuchPaddingException
 const val LOAD_PAYMENT_DATA_REQUEST_CODE = 991
 
 /** CloudpaymentsPlugin */
-public class CloudpaymentsPlugin : FlutterPlugin, MethodCallHandler, ActivityAware, PluginRegistry.ActivityResultListener {
+class CloudpaymentsPlugin : FlutterPlugin, MethodCallHandler, ActivityAware, PluginRegistry.ActivityResultListener {
     /// The MethodChannel that will the communication between Flutter and native Android
     ///
     /// This local reference serves to register the plugin with the Flutter Engine and unregister it
@@ -46,7 +46,7 @@ public class CloudpaymentsPlugin : FlutterPlugin, MethodCallHandler, ActivityAwa
 
     override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
         channel = MethodChannel(flutterPluginBinding.binaryMessenger, "cloudpayments")
-        channel.setMethodCallHandler(this);
+        channel.setMethodCallHandler(this)
     }
 
     override fun onDetachedFromEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
@@ -103,8 +103,8 @@ public class CloudpaymentsPlugin : FlutterPlugin, MethodCallHandler, ActivityAwa
                 val valid = isValidNumber(call)
                 result.success(valid)
             }
-            "isValidExpireDate" -> {
-                val valid = isValidExpireDate(call)
+            "isValidExpiryDate" -> {
+                val valid = isValidExpiryDate(call)
                 result.success(valid)
             }
             "cardCryptogram" -> {
@@ -136,10 +136,10 @@ public class CloudpaymentsPlugin : FlutterPlugin, MethodCallHandler, ActivityAwa
         return CPCard.isValidNumber(cardNumber)
     }
 
-    private fun isValidExpireDate(call: MethodCall): Boolean {
+    private fun isValidExpiryDate(call: MethodCall): Boolean {
         val params = call.arguments as Map<String, Any>
-        val expireDate = params["expireDate"] as String
-        return CPCard.isValidExpDate(expireDate)
+        val expiryDate = params["expiryDate"] as String
+        return CPCard.isValidExpDate(expiryDate)
     }
 
     private fun cardCryptogram(call: MethodCall): Map<String, Any?> {
@@ -151,7 +151,7 @@ public class CloudpaymentsPlugin : FlutterPlugin, MethodCallHandler, ActivityAwa
 
         val card = CPCard(cardNumber, cardDate, cardCVC)
         var cardCryptogram: String? = null
-        var error: String? = null;
+        var error: String? = null
 
         try {
             cardCryptogram = card.cardCryptogram(publicId)
@@ -205,7 +205,7 @@ public class CloudpaymentsPlugin : FlutterPlugin, MethodCallHandler, ActivityAwa
                 }
 
                 override fun onCancel() {
-                    result.success(null);
+                    result.success(null)
                 }
             })
         }
@@ -223,7 +223,7 @@ public class CloudpaymentsPlugin : FlutterPlugin, MethodCallHandler, ActivityAwa
         val activity = activity
 
         if (activity != null) {
-            paymentsClient = GooglePayUtil.createPaymentsClient(activity, environment);
+            paymentsClient = GooglePayUtil.createPaymentsClient(activity, environment)
             result.success(null)
         } else {
             result.error("GooglePayError", "Couldn't create Payments Client", null)

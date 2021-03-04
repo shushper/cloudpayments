@@ -1,8 +1,5 @@
-import 'package:cloudpayments/cloudpayments.dart';
 import 'package:cloudpayments_example/common/custom_button.dart';
 import 'package:cloudpayments_example/common/extended_bloc.dart';
-import 'package:cloudpayments_example/models/transaction.dart';
-import 'package:cloudpayments_example/network/api.dart';
 import 'package:cloudpayments_example/screens/checkout/checkout_bloc.dart';
 import 'package:cloudpayments_example/screens/checkout/checkout_event.dart';
 import 'package:cloudpayments_example/screens/checkout/checkout_state.dart';
@@ -42,13 +39,13 @@ class _CheckoutScreenContentState extends State<CheckoutScreenContent> {
 
     final cardHolder = cardHolderController.text;
     final cardNumber = cardNumberMaskFormatter.getUnmaskedText();
-    final expireDate = expireDateFormatter.getMaskedText();
+    final expiryDate = expireDateFormatter.getMaskedText();
     final cvcCode = cvcDateFormatter.getUnmaskedText();
 
     final event = PayButtonPressed(
       cardHolder: cardHolder,
       cardNumber: cardNumber,
-      expireDate: expireDate,
+      expiryDate: expiryDate,
       cvcCode: cvcCode,
     );
 
@@ -72,6 +69,7 @@ class _CheckoutScreenContentState extends State<CheckoutScreenContent> {
         },
         child: BlocBuilder<CheckoutBloc, CheckoutState>(
           builder: (context, state) {
+            print('Rebuild screen');
             return LoadingOverlay(
               isLoading: state.isLoading,
               child: SingleChildScrollView(
@@ -125,7 +123,7 @@ class _CheckoutScreenContentState extends State<CheckoutScreenContent> {
                                 labelText: 'Expire Date',
                                 labelStyle: TextStyle(color: Colors.grey),
                                 border: UnderlineInputBorder(),
-                                errorText: state.expireDateError,
+                                errorText: state.expiryDateError,
                               ),
                             ),
                           ),

@@ -10,10 +10,10 @@ abstract class CheckoutEvent extends Equatable {
 class PayButtonPressed extends CheckoutEvent {
   final String cardHolder;
   final String cardNumber;
-  final String expireDate;
+  final String expiryDate;
   final String cvcCode;
 
-  PayButtonPressed({this.cardHolder, this.cardNumber, this.expireDate, this.cvcCode});
+  PayButtonPressed({this.cardHolder, this.cardNumber, this.expiryDate, this.cvcCode});
 }
 
 class Init extends CheckoutEvent {}
