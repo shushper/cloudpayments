@@ -10,7 +10,6 @@ enum GooglePayEnvironment { test, production }
 
 /// Contains helper methods that allow you to interact with Google Pay.
 class CloudpaymentsGooglePay {
-
   static const MethodChannel _channel = const MethodChannel('cloudpayments');
 
   CloudpaymentsGooglePay(GooglePayEnvironment environment) {
@@ -22,7 +21,6 @@ class CloudpaymentsGooglePay {
       'environment': environment,
     });
   }
-
 
   /// Checks whether a Google Pay is available on this device and can process payment requests using
   /// Cloudpayments payment network brands (Visa and Mastercard).

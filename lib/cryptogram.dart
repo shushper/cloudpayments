@@ -1,5 +1,4 @@
 class Cryptogram {
-
   /// The card cryptogram.
   final String cryptogram;
 
