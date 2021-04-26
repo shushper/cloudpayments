@@ -81,7 +81,7 @@ class CloudpaymentsApplePay {
         return ApplePayResponse.fromException(e);
       }
     } else {
-      throw Exception("Apple Pay is allowed only on Android");
+      throw Exception("Apple Pay is allowed only on iOS");
     }
   }
 }

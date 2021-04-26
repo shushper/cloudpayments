@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:cloudpayments/response_statuses.dart';
 import 'package:flutter/services.dart';
 
 class GooglePayResponse {
@@ -19,14 +20,14 @@ class GooglePayResponse {
         errorDescription = map['errorDescription'];
 
   GooglePayResponse.fromPlatformException(PlatformException exception)
-      : status = 'ERROR',
+      : status = STATUS_ERROR,
         result = null,
         errorCode = exception.code,
         errorMessage = exception.message,
         errorDescription = null;
 
   GooglePayResponse.fromException(Exception exception)
-      : status = 'ERROR',
+      : status = STATUS_ERROR,
         result = null,
         errorCode = null,
         errorMessage = null,
@@ -41,11 +42,11 @@ class GooglePayResponse {
   String get token => result['paymentMethodData']['tokenizationData']['token'];
 
   /// True if token was obtained successfully
-  bool get isSuccess => status == "SUCCESS";
+  bool get isSuccess => status == STATUS_SUCCESS;
 
   /// True if there was an error while receiving the token
-  bool get isError => status == "ERROR";
+  bool get isError => status == STATUS_ERROR;
 
   /// True if Google Pay dialog was canceled
-  bool get isCanceled => status == "CANCELED";
+  bool get isCanceled => status == STATUS_CANCELED;
 }

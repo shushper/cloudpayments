@@ -1,5 +1,7 @@
 import 'package:flutter/services.dart';
 
+import 'response_statuses.dart';
+
 class ApplePayResponse {
   final String status;
   final String token;
@@ -8,28 +10,28 @@ class ApplePayResponse {
   ApplePayResponse(this.status, this.token, {this.errorMessage});
 
   ApplePayResponse.fromResult(String result)
-      : status = 'SUCCESS',
+      : status = STATUS_SUCCESS,
         token = result,
         errorMessage = null;
 
 
   ApplePayResponse.fromPlatformException(PlatformException exception)
-      : status = exception.code == 'CANCELED' ? 'CANCELED' : 'ERROR',
+      : status = exception.code == STATUS_CANCELED ? STATUS_CANCELED : STATUS_ERROR,
         token = null,
         errorMessage = exception.message;
 
   ApplePayResponse.fromException(Exception exception)
-      : status = 'ERROR',
+      : status = STATUS_ERROR,
         token = null,
         errorMessage = null;
 
 
   /// True if token was obtained successfully
-  bool get isSuccess => status == "SUCCESS";
+  bool get isSuccess => status == STATUS_SUCCESS;
 
   /// True if there was an error while receiving the token
-  bool get isError => status == "ERROR";
+  bool get isError => status == STATUS_ERROR;
 
   /// True if Apple Pay dialog was canceled
-  bool get isCanceled => status == "CANCELED";
+  bool get isCanceled => status == STATUS_CANCELED;
 }
