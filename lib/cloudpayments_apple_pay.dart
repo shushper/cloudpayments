@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cloudpayments/apple_pay_response.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -44,7 +45,21 @@ class CloudpaymentsApplePay {
   ///   {"name": "Total", "price": "430.60"},
   /// ]
   ///```
-  Future<String> requestApplePayPayment({
+  ///
+  /// Returns [ApplePayResponse]. You have to check whether response is success and if so, you can obtain
+  /// payment token by [response.token]
+  ///
+  /// ```dart
+  /// if (response.isSuccess) {
+  ///   final token = response.token;
+  ///   // use token for payment by a cryptogram
+  /// } else if (response.isError) {
+  ///   // show error
+  ///} else if (response.isCanceled) {
+  ///   // apple pay was canceled
+  ///}
+  /// ```
+  Future<ApplePayResponse> requestApplePayPayment({
     @required String merchantId,
     @required String currencyCode,
     @required String countryCode,
@@ -58,11 +73,12 @@ class CloudpaymentsApplePay {
           'countryCode': countryCode,
           'products': products,
         });
-        return result;
-      } on PlatformException catch (_) {
-        return null;
+
+        return ApplePayResponse.fromResult(result);
+      } on PlatformException catch (e) {
+        return ApplePayResponse.fromPlatformException(e);
       } catch (e) {
-        return null;
+        return ApplePayResponse.fromException(e);
       }
     } else {
       throw Exception("Apple Pay is allowed only on Android");

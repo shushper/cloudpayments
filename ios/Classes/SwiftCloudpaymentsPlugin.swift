@@ -151,7 +151,7 @@ extension SwiftCloudpaymentsPlugin: PKPaymentAuthorizationViewControllerDelegate
         
         // Конвертируем объект PKPayment в строку криптограммы
         guard let cryptogram = PKPaymentConverter.convert(toString: payment) else {
-            lastPaymentResult?.self(FlutterError(code: "RequestPayment", message: "Can't convert pk payment", details: nil))
+            lastPaymentResult?.self(FlutterError(code: "PK_PAYMENT_CONVERT_ERROR", message: "Can't convert pk payment", details: nil))
             return
         }
         
@@ -160,7 +160,7 @@ extension SwiftCloudpaymentsPlugin: PKPaymentAuthorizationViewControllerDelegate
     
     public func paymentAuthorizationViewControllerDidFinish(_ controller: PKPaymentAuthorizationViewController) {
         controller.dismiss(animated: true, completion: nil)
-        lastPaymentResult?.self(FlutterError(code: "RequestPayment", message: "Payment cancelled", details: nil))
+        lastPaymentResult?.self(FlutterError(code: "CANCELED", message: "Payment canceled", details: nil))
     }
 }
 

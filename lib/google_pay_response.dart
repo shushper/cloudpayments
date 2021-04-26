@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:flutter/services.dart';
+
 class GooglePayResponse {
   final String status;
   final Map<String, dynamic> result;
@@ -7,7 +9,7 @@ class GooglePayResponse {
   final String errorMessage;
   final String errorDescription;
 
-  GooglePayResponse(this.status, this.result, this.errorCode, this.errorMessage, this.errorDescription);
+  GooglePayResponse(this.status, this.result, {this.errorCode, this.errorMessage, this.errorDescription});
 
   GooglePayResponse.fromMap(Map<dynamic, dynamic> map)
       : status = map['status'],
@@ -15,6 +17,20 @@ class GooglePayResponse {
         errorCode = map['errorCode'],
         errorMessage = map['errorMessage'],
         errorDescription = map['errorDescription'];
+
+  GooglePayResponse.fromPlatformException(PlatformException exception)
+      : status = 'ERROR',
+        result = null,
+        errorCode = exception.code,
+        errorMessage = exception.message,
+        errorDescription = null;
+
+  GooglePayResponse.fromException(Exception exception)
+      : status = 'ERROR',
+        result = null,
+        errorCode = null,
+        errorMessage = null,
+        errorDescription = null;
 
   static Map<String, dynamic> parseResult(String result) {
     final decoded = jsonDecode(result) as Map<String, dynamic>;
@@ -29,4 +45,7 @@ class GooglePayResponse {
 
   /// True if there was an error while receiving the token
   bool get isError => status == "ERROR";
+
+  /// True if Google Pay dialog was canceled
+  bool get isCanceled => status == "CANCELED";
 }
