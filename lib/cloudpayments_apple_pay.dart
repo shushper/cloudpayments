@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:cloudpayments/apple_pay_response.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 /// Contains helper methods that allow you to interact with Apple Pay.
@@ -15,7 +14,7 @@ class CloudpaymentsApplePay {
   Future<bool> isApplePayAvailable() async {
     if (Platform.isIOS) {
       try {
-        final bool available = await _channel.invokeMethod('isApplePayAvailable');
+        final available = await _channel.invokeMethod('isApplePayAvailable');
         return available;
       } on PlatformException catch (_) {
         return false;
@@ -60,10 +59,10 @@ class CloudpaymentsApplePay {
   ///}
   /// ```
   Future<ApplePayResponse> requestApplePayPayment({
-    @required String merchantId,
-    @required String currencyCode,
-    @required String countryCode,
-    @required List<Map<String, String>> products,
+    required String merchantId,
+    required String currencyCode,
+    required String countryCode,
+    required List<Map<String, String>> products,
   }) async {
     if (Platform.isIOS) {
       try {
@@ -78,7 +77,7 @@ class CloudpaymentsApplePay {
       } on PlatformException catch (e) {
         return ApplePayResponse.fromPlatformException(e);
       } catch (e) {
-        return ApplePayResponse.fromException(e);
+        return ApplePayResponse.fromException();
       }
     } else {
       throw Exception("Apple Pay is allowed only on iOS");

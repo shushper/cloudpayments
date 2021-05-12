@@ -3,7 +3,6 @@ import 'dart:io';
 
 import 'package:cloudpayments/cryptogram.dart';
 import 'package:cloudpayments/three_ds_response.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 /// Contains helpful methods that allow you to check payment card parameters validity and create a card cryptogram.
@@ -12,8 +11,8 @@ class Cloudpayments {
 
   /// Checks if the given [cardNumber] is valid.
   static Future<bool> isValidNumber(String cardNumber) async {
-    final bool valid = await _channel.invokeMethod<bool>('isValidNumber', {'cardNumber': cardNumber});
-    return valid;
+    final valid = await _channel.invokeMethod<bool>('isValidNumber', {'cardNumber': cardNumber});
+    return valid!;
   }
 
   /// Checks if the given card [expiryDate] is valid and not expired.
@@ -22,7 +21,7 @@ class Cloudpayments {
   static Future<bool> isValidExpiryDate(String expiryDate) async {
     final date = _formatExpiryDate(expiryDate);
     final valid = await _channel.invokeMethod<bool>('isValidExpiryDate', {'expiryDate': date});
-    return valid;
+    return valid!;
   }
 
   /// Generates card cryptogram.
@@ -35,10 +34,10 @@ class Cloudpayments {
   ///
   /// [publicId] - Your Cloudpayments public id. You can obtain it in your [Cloudpayments account](https://merchant.cloudpayments.ru/)
   static Future<Cryptogram> cardCryptogram({
-    @required String cardNumber,
-    @required String cardDate,
-    @required String cardCVC,
-    @required String publicId,
+    required String cardNumber,
+    required String cardDate,
+    required String cardCVC,
+    required String publicId,
   }) async {
     final date = _formatExpiryDate(cardDate);
     final dynamic arguments = await _channel.invokeMethod<dynamic>('cardCryptogram', {
@@ -54,10 +53,10 @@ class Cloudpayments {
   /// if a 3DS authentication is needed.
   ///
   /// Returns [ThreeDsResponse]. You have to use parameters of [ThreeDsResponse] in post3ds api method.
-  static Future<ThreeDsResponse> show3ds({
-    @required String acsUrl,
-    @required String transactionId,
-    @required String paReq,
+  static Future<ThreeDsResponse?> show3ds({
+    required String acsUrl,
+    required String transactionId,
+    required String paReq,
   }) async {
     try {
       final dynamic arguments = await _channel.invokeMethod<dynamic>('show3ds', {
@@ -77,12 +76,12 @@ class Cloudpayments {
   }
 
   static String _formatExpiryDate(String expiryDate) {
-    String date;
     if (Platform.isAndroid) {
-      date = expiryDate.replaceAll('/', '');
+      return expiryDate.replaceAll('/', '');
     } else if (Platform.isIOS) {
-      date = expiryDate;
+      return expiryDate;
+    } else {
+      throw Exception("Platform is not supported");
     }
-    return date;
   }
 }

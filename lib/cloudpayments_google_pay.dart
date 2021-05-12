@@ -27,7 +27,7 @@ class CloudpaymentsGooglePay {
   Future<bool> isGooglePayAvailable() async {
     if (Platform.isAndroid) {
       try {
-        final bool available = await _channel.invokeMethod('isGooglePayAvailable');
+        final available = await _channel.invokeMethod('isGooglePayAvailable');
         return available;
       } on PlatformException catch (_) {
         return false;
@@ -64,11 +64,11 @@ class CloudpaymentsGooglePay {
   ///}
   /// ```
   Future<GooglePayResponse> requestGooglePayPayment({
-    @required String price,
-    @required String currencyCode,
-    @required String countryCode,
-    @required String merchantName,
-    @required String publicId,
+    required String price,
+    required String currencyCode,
+    required String countryCode,
+    required String merchantName,
+    required String publicId,
   }) async {
     if (Platform.isAndroid) {
       try {
@@ -83,7 +83,7 @@ class CloudpaymentsGooglePay {
       } on PlatformException catch (e) {
         return GooglePayResponse.fromPlatformException(e);
       } catch (e) {
-        return GooglePayResponse.fromException(e);
+        return GooglePayResponse.fromException();
       }
     } else {
       throw Exception("Google Pay is allowed only on Android");

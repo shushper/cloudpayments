@@ -4,8 +4,8 @@ import 'response_statuses.dart';
 
 class ApplePayResponse {
   final String status;
-  final String token;
-  final String errorMessage;
+  final String? token;
+  final String? errorMessage;
 
   ApplePayResponse(this.status, this.token, {this.errorMessage});
 
@@ -20,7 +20,7 @@ class ApplePayResponse {
         token = null,
         errorMessage = exception.message;
 
-  ApplePayResponse.fromException(Exception exception)
+  ApplePayResponse.fromException()
       : status = STATUS_ERROR,
         token = null,
         errorMessage = null;
