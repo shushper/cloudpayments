@@ -1,3 +1,6 @@
+## 0.3.0
+* Null safety.
+
 ## 0.2.1
 * requestApplePayPayment method now returns ApplePayResponse.
 * Both AppleParResponse and GooglePayResponse now contain information on whether the payment dialog was canceled.
