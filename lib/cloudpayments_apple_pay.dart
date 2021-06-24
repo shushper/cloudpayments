@@ -66,7 +66,8 @@ class CloudpaymentsApplePay {
   }) async {
     if (Platform.isIOS) {
       try {
-        final dynamic result = await _channel.invokeMethod<dynamic>('requestApplePayPayment', {
+        final dynamic result =
+            await _channel.invokeMethod<dynamic>('requestApplePayPayment', {
           'merchantId': merchantId,
           'currencyCode': currencyCode,
           'countryCode': countryCode,

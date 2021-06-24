@@ -72,7 +72,8 @@ class CloudpaymentsGooglePay {
   }) async {
     if (Platform.isAndroid) {
       try {
-        final dynamic result = await _channel.invokeMethod<dynamic>('requestGooglePayPayment', {
+        final dynamic result =
+            await _channel.invokeMethod<dynamic>('requestGooglePayPayment', {
           'price': price,
           'currencyCode': currencyCode,
           'countryCode': countryCode,

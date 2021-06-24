@@ -14,9 +14,9 @@ class ApplePayResponse {
         token = result,
         errorMessage = null;
 
-
   ApplePayResponse.fromPlatformException(PlatformException exception)
-      : status = exception.code == STATUS_CANCELED ? STATUS_CANCELED : STATUS_ERROR,
+      : status =
+            exception.code == STATUS_CANCELED ? STATUS_CANCELED : STATUS_ERROR,
         token = null,
         errorMessage = exception.message;
 
@@ -24,7 +24,6 @@ class ApplePayResponse {
       : status = STATUS_ERROR,
         token = null,
         errorMessage = null;
-
 
   /// True if token was obtained successfully
   bool get isSuccess => status == STATUS_SUCCESS;

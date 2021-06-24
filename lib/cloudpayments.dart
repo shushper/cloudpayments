@@ -11,7 +11,8 @@ class Cloudpayments {
 
   /// Checks if the given [cardNumber] is valid.
   static Future<bool> isValidNumber(String cardNumber) async {
-    final valid = await _channel.invokeMethod<bool>('isValidNumber', {'cardNumber': cardNumber});
+    final valid = await _channel
+        .invokeMethod<bool>('isValidNumber', {'cardNumber': cardNumber});
     return valid!;
   }
 
@@ -20,7 +21,8 @@ class Cloudpayments {
   /// [expiryDate] must be in the format 'MM/YY'
   static Future<bool> isValidExpiryDate(String expiryDate) async {
     final date = _formatExpiryDate(expiryDate);
-    final valid = await _channel.invokeMethod<bool>('isValidExpiryDate', {'expiryDate': date});
+    final valid = await _channel
+        .invokeMethod<bool>('isValidExpiryDate', {'expiryDate': date});
     return valid!;
   }
 
@@ -40,7 +42,8 @@ class Cloudpayments {
     required String publicId,
   }) async {
     final date = _formatExpiryDate(cardDate);
-    final dynamic arguments = await _channel.invokeMethod<dynamic>('cardCryptogram', {
+    final dynamic arguments =
+        await _channel.invokeMethod<dynamic>('cardCryptogram', {
       'cardNumber': cardNumber,
       'cardDate': date,
       'cardCVC': cardCVC,
@@ -59,7 +62,8 @@ class Cloudpayments {
     required String paReq,
   }) async {
     try {
-      final dynamic arguments = await _channel.invokeMethod<dynamic>('show3ds', {
+      final dynamic arguments =
+          await _channel.invokeMethod<dynamic>('show3ds', {
         'acsUrl': acsUrl,
         'transactionId': transactionId,
         'paReq': paReq,
@@ -68,7 +72,8 @@ class Cloudpayments {
       if (arguments == null) {
         return null;
       } else {
-        return ThreeDsResponse(success: true, md: arguments['md'], paRes: arguments['paRes']);
+        return ThreeDsResponse(
+            success: true, md: arguments['md'], paRes: arguments['paRes']);
       }
     } on PlatformException catch (e) {
       return ThreeDsResponse(success: false, error: e.message);

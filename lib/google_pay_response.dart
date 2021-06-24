@@ -10,7 +10,8 @@ class GooglePayResponse {
   final String? errorMessage;
   final String? errorDescription;
 
-  GooglePayResponse(this.status, this.result, {this.errorCode, this.errorMessage, this.errorDescription});
+  GooglePayResponse(this.status, this.result,
+      {this.errorCode, this.errorMessage, this.errorDescription});
 
   GooglePayResponse.fromMap(Map<dynamic, dynamic> map)
       : status = map['status'],
@@ -39,7 +40,8 @@ class GooglePayResponse {
   }
 
   /// Payment token than you can use in payment by a cryptogram
-  String? get token => result!['paymentMethodData']['tokenizationData']['token'];
+  String? get token =>
+      result!['paymentMethodData']['tokenizationData']['token'];
 
   /// True if token was obtained successfully
   bool get isSuccess => status == STATUS_SUCCESS;
