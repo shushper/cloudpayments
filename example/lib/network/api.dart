@@ -1,5 +1,4 @@
 import 'package:cloudpayments_example/models/transaction.dart';
-import 'package:cloudpayments_example/network/api_error.dart';
 import 'package:cloudpayments_example/network/network.dart';
 import 'package:cloudpayments_example/network/pay_request.dart';
 import 'package:cloudpayments_example/network/post_3ds_request.dart';
