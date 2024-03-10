@@ -6,7 +6,7 @@ description: Demonstrates how to use the cloudpayments plugin.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
 environment:
-  sdk: ">=2.7.0 <3.0.0"
+  sdk: '>=2.19.0 <3.0.0'
 
 dependencies:
   flutter:
@@ -20,12 +20,12 @@ dependencies:
     # the parent directory to use the current plugin's version.
     path: ../
 
-  flutter_svg: ^0.22.0
-  mask_text_input_formatter: ^2.0.0-nullsafety.2
-  dio: ^4.0.0
+  flutter_svg: 2.0.10+1
+  mask_text_input_formatter: 2.9.0
+  dio: 5.4.1
   loading_overlay: ^0.3.0
-  flutter_bloc: ^7.0.0
-  equatable: ^2.0.0
+  flutter_bloc: 8.1.4
+  equatable: 2.0.5
 
 dev_dependencies:
   flutter_test:

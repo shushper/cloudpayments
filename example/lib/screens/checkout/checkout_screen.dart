@@ -62,9 +62,9 @@ class _CheckoutScreenContentState extends State<CheckoutScreenContent> {
         listener: (context, command) {
           if (command is ShowSnackBar) {
             final snackBar = SnackBar(
-              content: Text(command.message),
+              content: Text(command.message ?? ''),
             );
-            Scaffold.of(context).showSnackBar(snackBar);
+            ScaffoldMessenger.of(context).showSnackBar(snackBar);
           }
         },
         child: BlocBuilder<CheckoutBloc, CheckoutState>(
